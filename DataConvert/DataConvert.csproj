@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>Joost W. Morsink</Authors>
+    <Company>Morsink Software</Company>
+    <PackageId>Biz.Morsink.DataConvert</PackageId>
+    <Description>Fast conversion of data</Description>
+    <RootNamespace>Biz.Morsink.DataConvert</RootNamespace>
+    <Copyright>(C) 2017 Joost W. Morsink</Copyright>
+    <PackageTags>Conversion</PackageTags>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
+    <VersionSuffix>beta001</VersionSuffix>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration) == 'Release'">
+    
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <VersionSuffix>a000debug</VersionSuffix>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
+  </ItemGroup>
+</Project>
