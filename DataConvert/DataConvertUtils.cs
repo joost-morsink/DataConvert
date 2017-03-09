@@ -10,8 +10,7 @@ namespace Biz.Morsink.DataConvert
     static class DataConvertUtils
     {
         public static Ex NoResult(Type t)
-            => Ex.New(typeof(ConversionResult<>).MakeGenericType(t).GetTypeInfo().DeclaredConstructors
-                .Single(ci => ci.GetParameters().Length == 0));
+            => Ex.Default(typeof(ConversionResult<>).MakeGenericType(t));
         public static Ex Result(Type t, Ex expr)
             => Ex.New(typeof(ConversionResult<>).MakeGenericType(t).GetTypeInfo().DeclaredConstructors
                 .Single(ci => ci.GetParameters().Length == 1 && ci.GetParameters()[0].ParameterType == t), expr);

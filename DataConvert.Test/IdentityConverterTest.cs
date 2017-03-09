@@ -22,7 +22,7 @@ namespace Biz.Morsink.DataConvert.Test
             _converter = null;
         }
         [TestMethod]
-        public void CanConvert()
+        public void Identity_CanConvert()
         {
             Assert.IsTrue(_idConverter.CanConvert(typeof(bool), typeof(bool)));
             Assert.IsTrue(_idConverter.CanConvert(typeof(int), typeof(int)));
@@ -32,7 +32,7 @@ namespace Biz.Morsink.DataConvert.Test
         }
 
         [TestMethod]
-        public void Identities()
+        public void Identity_Identities()
         {
             var iconv = _converter.GetConverter<int, int>();
             Assert.IsTrue(iconv(42).IsSuccessful);
@@ -42,7 +42,7 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.AreEqual("hello", sconv("hello").Result);
         }
         [TestMethod]
-        public void Impossible()
+        public void Identity_Impossible()
         {
             var iconv = _converter.GetConverter<int, long>();
             Assert.IsFalse(iconv(42).IsSuccessful);

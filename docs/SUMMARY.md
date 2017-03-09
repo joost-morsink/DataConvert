@@ -6,4 +6,5 @@
   * [Pipeline](design/README.md#pipeline)
 * [Component Reference](reference/README.md)
   * [IdentityConverter](reference/identity.md)
+  * [ToStringConverter](reference/toString.md)
   * [Default pipeline](reference/pipeline.md)

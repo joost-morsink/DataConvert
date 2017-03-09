@@ -105,7 +105,8 @@ namespace Biz.Morsink.DataConvert
         /// </summary>
         public static IDataConverter Default { get; set; } = new DataConverter(new IConverter[]
         {
-            new IdentityConverter()
+            new IdentityConverter(),
+            new ToStringConverter(true)
         });
     }
 }
