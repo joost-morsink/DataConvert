@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataConvert", "DataConvert\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A0C5E3C-C175-455F-93F4-067F627D6DB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataConvert.Test", "DataConvert.Test\DataConvert.Test.csproj", "{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,12 @@ Global
 		{D958919B-F1F0-4A4D-A862-CCCC0AE75BD5}.Prerelease|Any CPU.Build.0 = Prerelease|Any CPU
 		{D958919B-F1F0-4A4D-A862-CCCC0AE75BD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D958919B-F1F0-4A4D-A862-CCCC0AE75BD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}.Prerelease|Any CPU.ActiveCfg = Release|Any CPU
+		{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}.Prerelease|Any CPU.Build.0 = Release|Any CPU
+		{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

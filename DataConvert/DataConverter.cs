@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using Biz.Morsink.DataConvert.Converters;
 
 namespace Biz.Morsink.DataConvert
 {
@@ -105,7 +105,7 @@ namespace Biz.Morsink.DataConvert
         /// </summary>
         public static IDataConverter Default { get; set; } = new DataConverter(new IConverter[]
         {
-
+            new IdentityConverter()
         });
     }
 }
