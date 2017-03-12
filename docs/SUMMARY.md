@@ -7,4 +7,5 @@
 * [Component Reference](reference/README.md)
   * [IdentityConverter](reference/identity.md)
   * [ToStringConverter](reference/toString.md)
+  * [TryParseConverter](reference/tryParse.md)
   * [Default pipeline](reference/pipeline.md)
