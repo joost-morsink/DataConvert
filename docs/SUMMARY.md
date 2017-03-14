@@ -5,6 +5,7 @@
   * [Generic interface](design/README.md#interface)
   * [Pipeline](design/README.md#pipeline)
 * [Component Reference](reference/README.md)
+  * [DynamicConverter](reference/dynamic.md)
   * [IdentityConverter](reference/identity.md)
   * [ToStringConverter](reference/toString.md)
   * [TryParseConverter](reference/tryParse.md)

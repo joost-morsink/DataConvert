@@ -97,5 +97,19 @@ namespace Biz.Morsink.DataConvert
         /// <returns>A placeholder struct that can take a conversion call.</returns>
         public static Convertible<T> Convert<T>(this IDataConverter converter, T value)
             => new Convertible<T>(converter, value);
+        /// <summary>
+        /// Does a conversion without strong typed generics
+        /// </summary>
+        /// <param name="converter">The converter to use for conversion</param>
+        /// <param name="val">The value to be converted</param>
+        /// <param name="destination">The type to be converted to</param>
+        /// <returns></returns>
+        public static IConversionResult DoGeneralConversion(this IDataConverter converter, object val, Type destination)
+        {
+            if (val == null)
+                return (IConversionResult)Activator.CreateInstance(typeof(ConversionResult<>).MakeGenericType(destination));
+            var src = val.GetType();
+            return converter.GetGeneralConverter(src, destination)(val);
+        }
     }
 }
