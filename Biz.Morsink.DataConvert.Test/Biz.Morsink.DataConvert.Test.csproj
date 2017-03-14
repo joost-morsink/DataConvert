@@ -59,9 +59,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DataConvert\DataConvert.csproj">
+    <ProjectReference Include="..\Biz.Morsink.DataConvert\Biz.Morsink.DataConvert.csproj">
       <Project>{D958919B-F1F0-4A4D-A862-CCCC0AE75BD5}</Project>
-      <Name>DataConvert</Name>
+      <Name>Biz.Morsink.DataConvert</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
