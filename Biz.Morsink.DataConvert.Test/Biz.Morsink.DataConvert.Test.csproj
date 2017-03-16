@@ -55,6 +55,7 @@
     <Compile Include="ToStringConverterTest.cs" />
     <Compile Include="TryParseConverterTest.cs" />
     <Compile Include="FromStringRepresentationConverterTest.cs" />
+    <Compile Include="ToNullableConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

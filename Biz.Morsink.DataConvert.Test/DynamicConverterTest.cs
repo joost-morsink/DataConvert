@@ -38,7 +38,7 @@ namespace Biz.Morsink.DataConvert.Test
         }
             
         [TestMethod]
-        public void Dyanmic_Unhappy()
+        public void Dynamic_Unhappy()
         {
             Assert.AreEqual(0, _converter.Convert(42L).To<int>());
             Assert.IsFalse(_converter.DoConversion<object, int>(null).IsSuccessful);
