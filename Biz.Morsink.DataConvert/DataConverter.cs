@@ -103,14 +103,17 @@ namespace Biz.Morsink.DataConvert
         /// <summary>
         /// Provides a way of getting/setting a default DataConverter, when that is needed for projects that don't actually want to use the dependency injection pattern.
         /// </summary>
-        public static IDataConverter Default { get; set; } = new DataConverter(new IConverter[]
-        {
-            new IdentityConverter(),
-            new ToStringConverter(true),
-            new TryParseConverter(),
-            new ToNullableConverter(),
-            new FromStringRepresentationConverter().Restrict((from,to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
-            new DynamicConverter()
-        });
+        public static IDataConverter Default { get; set; } = CreateDefault();
+        public static IDataConverter CreateDefault() =>
+            new DataConverter(new IConverter[]
+            {
+                new IdentityConverter(),
+                new ToStringConverter(true),
+                new TryParseConverter(),
+                new ToNullableConverter(),
+                new FromStringRepresentationConverter().Restrict((from,to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
+                new DynamicConverter()
+            });
+        
     }
 }
