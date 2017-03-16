@@ -10,6 +10,9 @@ namespace Biz.Morsink.DataConvert.Converters
 {
     using System.Globalization;
     using static Biz.Morsink.DataConvert.DataConvertUtils;
+    /// <summary>
+    /// Converts a value by first converting it to string and feeding that string back into the pipeline.
+    /// </summary>
     public class FromStringRepresentationConverter : IConverter, IDataConverterRef
     {
         public IDataConverter Ref { get; set; }
