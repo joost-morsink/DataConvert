@@ -11,9 +11,8 @@ At least the following classes have the TryParse method:
 
 ### Parameters
 The TryParseConverter class is configurable through the following constructor parameters:
+
 | Parameter | Property | Type | Description | Default |
 | --------- | -------- | ---- | ----------- | ------- |
 | formatProvider | FormatProvider | IFormatProvider | The `IFormatProvider` to use as a `TryParse` method parameter | CultureInfo.InvariantCulture | 
 | numberStyles | NumberStyles | NumberStyles | The NumberStyles value to use in `TryParse` methods. | NumberStyles.Float |
-
-

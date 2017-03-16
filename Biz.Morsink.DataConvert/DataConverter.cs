@@ -108,6 +108,7 @@ namespace Biz.Morsink.DataConvert
             new IdentityConverter(),
             new ToStringConverter(true),
             new TryParseConverter(),
+            new FromStringRepresentationConverter(),
             new DynamicConverter()
         });
     }

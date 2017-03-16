@@ -54,6 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ToStringConverterTest.cs" />
     <Compile Include="TryParseConverterTest.cs" />
+    <Compile Include="FromStringRepresentationConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

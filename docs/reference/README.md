@@ -3,6 +3,7 @@
 The following `IConverter` components have been developed:
 
 * [DynamicConverter](dynamic.md)
+* [FromStringRepresentationConverter](fromStringRep.md)
 * [IdentityConverter](identity.md)
 * [ToStringConverter](toString.md)
 * [TryParseConverter](tryParse.md)

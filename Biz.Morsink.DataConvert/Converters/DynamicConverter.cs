@@ -12,7 +12,7 @@ namespace Biz.Morsink.DataConvert.Converters
     /// </summary>
     public class DynamicConverter : IConverter, IDataConverterRef
     {
-        public IDataConverter Ref { private get; set; }
+        public IDataConverter Ref { get; set; }
 
         public bool CanConvert(Type from, Type to)
             => from == typeof(object);
