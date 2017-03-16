@@ -109,7 +109,7 @@ namespace Biz.Morsink.DataConvert
             new ToStringConverter(true),
             new TryParseConverter(),
             new ToNullableConverter(),
-            new FromStringRepresentationConverter(),
+            new FromStringRepresentationConverter().Restrict((from,to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
             new DynamicConverter()
         });
     }

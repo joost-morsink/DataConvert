@@ -70,3 +70,8 @@ The `DataConverter` class handles this by chaining and caching delegates from `I
 
 Because of the interface requirements combined with the need for strongly typed delegates, code generation is required for all but the most simple conversions.
 This library has a dependency on System.Linq.Expressions for code generation.
+
+### Decoration
+Converters can be decorated by extending and/or using the `DecoratedConverter`. 
+The `RestrictTypesConverter` class can be used to restrict when some converter can be applied. 
+A `Func<Type, Type, bool>` typed filter function can be passed as a constructor parameter.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Biz.Morsink.DataConvert.Converters;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -111,5 +112,13 @@ namespace Biz.Morsink.DataConvert
             var src = val.GetType();
             return converter.GetGeneralConverter(src, destination)(val);
         }
+        /// <summary>
+        /// Restricts the type on which a converter can operate. 
+        /// </summary>
+        /// <param name="converter">The converter to restrict.</param>
+        /// <param name="typeFilter">A type filter expressing the restriction.</param>
+        /// <returns>A restricted converter.</returns>
+        public static IConverter Restrict(this IConverter converter, Func<Type, Type, bool> typeFilter)
+            => new RestrictTypesConverter(converter, typeFilter);
     }
 }
