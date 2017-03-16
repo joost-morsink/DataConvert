@@ -110,6 +110,7 @@ namespace Biz.Morsink.DataConvert
                 new IdentityConverter(),
                 new ToStringConverter(true),
                 new TryParseConverter(),
+                new SimpleNumericConverter(),
                 new ToNullableConverter(),
                 new FromStringRepresentationConverter().Restrict((from,to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 new DynamicConverter()

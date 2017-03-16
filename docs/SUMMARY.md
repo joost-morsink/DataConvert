@@ -9,6 +9,7 @@
   * [DynamicConverter](reference/dynamic.md)
   * [FromStringRepresentationConverter](reference/fromStringRep.md)
   * [IdentityConverter](reference/identity.md)
+  * [SimpleNumericConverter](simpleNum.md)
   * [ToNullableConverter](reference/toNullable.md)
   * [ToStringConverter](reference/toString.md)
   * [TryParseConverter](reference/tryParse.md)

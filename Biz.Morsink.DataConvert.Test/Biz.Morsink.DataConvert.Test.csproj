@@ -57,6 +57,7 @@
     <Compile Include="FromStringRepresentationConverterTest.cs" />
     <Compile Include="ToNullableConverterTest.cs" />
     <Compile Include="DefaultConvertConverterTest.cs" />
+    <Compile Include="SimpleNumericConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -5,6 +5,7 @@ The default pipeline consists of the following components in order of occurence:
 * [IdentityConverter](identity.md)
 * [ToStringConverter](toString.md)
 * [TryParseConverter](tryParse.md)
+* [SimpleNumericConverter](simpleNum.md)
 * [ToNullableConverter](toNullable.md)
 * [FromStringRepresentationConverter](fromStringRep.md) 
   * Restricted by a RestrictTypesConverter.
@@ -22,4 +23,4 @@ A conversion which does not preserve ordering in some meaningful way is not desi
 Combined with the fact that numeric conversions are a big part of this library, the `Version` class is excluded from the `FromStringRepresentationConverter` in the default pipeline.
 It is technically possible to define some set of numeric types to weaken this restriction, but the set of all numeric types is open. 
 For instance, .Net 4.0 introduced the `System.Numeric` namespace.
-There is no guarantee that someone in the future will not introduce a new numeric type, that should also be excluded from this conversion.
+There is no guarantee that someone in the future will not introduce a new numeric type, that should be excluded from this conversion as well.
