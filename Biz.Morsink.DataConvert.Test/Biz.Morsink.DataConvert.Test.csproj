@@ -58,6 +58,7 @@
     <Compile Include="ToNullableConverterTest.cs" />
     <Compile Include="DefaultConvertConverterTest.cs" />
     <Compile Include="SimpleNumericConverterTest.cs" />
+    <Compile Include="IsoDateTimeConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
