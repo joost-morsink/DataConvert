@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Biz.Morsink.DataConvert.Converters
 {
+    /// <summary>
+    /// This class handles conversion between strings and DateTime/DateTimeOffset values.
+    /// </summary>
     public class IsoDateTimeConverter : IConverter
     {
         public static ConversionResult<string> ToIsoDate(DateTime datetime)
