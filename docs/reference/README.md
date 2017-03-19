@@ -4,6 +4,7 @@ The following `IConverter` components have been developed:
 
 * [DefaultConvertConverter](default.md)
 * [DynamicConverter](dynamic.md)
+* [EnumParseConverter](enumParse.md)
 * [FromStringRepresentationConverter](fromStringRep.md)
 * [IdentityConverter](identity.md)
 * [SimpleNumericConverter](simpleNum.md)

@@ -7,6 +7,7 @@
 * [Component Reference](reference/README.md)
   * [DefaultConvertConverter](reference/default.md)
   * [DynamicConverter](reference/dynamic.md)
+  * [EnumParseConverter](reference/enumParse.md)
   * [FromStringRepresentationConverter](reference/fromStringRep.md)
   * [IdentityConverter](reference/identity.md)
   * [SimpleNumericConverter](simpleNum.md)

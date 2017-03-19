@@ -6,6 +6,7 @@ The default pipeline consists of the following components in order of occurence:
 * [ToStringConverter](toString.md)
 * [TryParseConverter](tryParse.md)
 * [SimpleNumericConverter](simpleNum.md)
+* [EnumParseConverter](enumParse.md)
 * [ToNullableConverter](toNullable.md)
 * [FromStringRepresentationConverter](fromStringRep.md) 
   * Restricted by a RestrictTypesConverter.
