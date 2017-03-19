@@ -108,14 +108,14 @@ namespace Biz.Morsink.DataConvert
             new DataConverter(new IConverter[]
             {
                 new IdentityConverter(),
-                new ToStringConverter(true),
                 new IsoDateTimeConverter(),
+                new ToStringConverter(true),
                 new TryParseConverter(),
                 new EnumToNumericConverter(),
                 new SimpleNumericConverter(),
                 new EnumParseConverter(true),
                 new ToNullableConverter(),
-                new FromStringRepresentationConverter().Restrict((from,to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
+                new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 new DynamicConverter()
             });
 
