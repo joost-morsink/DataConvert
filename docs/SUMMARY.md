@@ -8,6 +8,7 @@
   * [DefaultConvertConverter](reference/default.md)
   * [DynamicConverter](reference/dynamic.md)
   * [EnumParseConverter](reference/enumParse.md)
+  * [EnumToNumericConverter](reference/enumToNum.md)
   * [FromStringRepresentationConverter](reference/fromStringRep.md)
   * [IdentityConverter](reference/identity.md)
   * [IsoDateTimeConverter](reference/isoDate.md)

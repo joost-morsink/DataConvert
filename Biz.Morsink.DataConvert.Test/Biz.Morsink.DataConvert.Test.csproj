@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="DynamicConverterTest.cs" />
     <Compile Include="EnumParseConverterTest.cs" />
+    <Compile Include="EnumToNumericConverterTest.cs" />
     <Compile Include="IdentityConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ToStringConverterTest.cs" />

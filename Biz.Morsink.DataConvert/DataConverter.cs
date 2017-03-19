@@ -70,7 +70,7 @@ namespace Biz.Morsink.DataConvert
         }
 
         private Entry getEntry(Type from, Type to)
-            => _entries.GetOrAdd(Tuple.Create(from, to), tup => 
+            => _entries.GetOrAdd(Tuple.Create(from, to), tup =>
             {
                 var converters = from converter in _converters
                                  where converter.CanConvert(tup.Item1, tup.Item2)
@@ -111,12 +111,13 @@ namespace Biz.Morsink.DataConvert
                 new ToStringConverter(true),
                 new IsoDateTimeConverter(),
                 new TryParseConverter(),
+                new EnumToNumericConverter(),
                 new SimpleNumericConverter(),
                 new EnumParseConverter(true),
                 new ToNullableConverter(),
                 new FromStringRepresentationConverter().Restrict((from,to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 new DynamicConverter()
             });
-        
+
     }
 }
