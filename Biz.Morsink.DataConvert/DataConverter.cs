@@ -109,6 +109,7 @@ namespace Biz.Morsink.DataConvert
             {
                 new IdentityConverter(),
                 new IsoDateTimeConverter(),
+                new Base64Converter(),
                 new ToStringConverter(true),
                 new TryParseConverter(),
                 new EnumToNumericConverter(),

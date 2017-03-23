@@ -62,6 +62,7 @@
     <Compile Include="DefaultConvertConverterTest.cs" />
     <Compile Include="SimpleNumericConverterTest.cs" />
     <Compile Include="IsoDateTimeConverterTest.cs" />
+    <Compile Include="Base64ConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

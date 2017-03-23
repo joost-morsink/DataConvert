@@ -5,6 +5,7 @@
   * [Generic interface](design/README.md#interface)
   * [Pipeline](design/README.md#pipeline)
 * [Component Reference](reference/README.md)
+  * [Base64Converter](reference/base64.md)
   * [DefaultConvertConverter](reference/default.md)
   * [DynamicConverter](reference/dynamic.md)
   * [EnumParseConverter](reference/enumParse.md)

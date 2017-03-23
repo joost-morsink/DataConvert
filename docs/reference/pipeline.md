@@ -4,6 +4,7 @@ The default pipeline consists of the following components in order of occurence:
 
 * [IdentityConverter](identity.md)
 * [IsoDateTimeConverter](isoDate.md)
+* [Base64Converter](base64.md)
 * [ToStringConverter](toString.md)
 * [TryParseConverter](tryParse.md)
 * [EnumToNumericConverter](enumToNum.md)

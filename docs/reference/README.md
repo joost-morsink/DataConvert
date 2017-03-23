@@ -2,6 +2,7 @@
 
 The following `IConverter` components have been developed:
 
+* [Base64Converter](base64.md)
 * [DefaultConvertConverter](default.md)
 * [DynamicConverter](dynamic.md)
 * [EnumParseConverter](enumParse.md)
