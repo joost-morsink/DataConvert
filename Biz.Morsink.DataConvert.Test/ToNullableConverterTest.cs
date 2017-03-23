@@ -12,7 +12,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            converter = new DataConverter(new IConverter[] { new IdentityConverter(), new ToNullableConverter() });
+            converter = new DataConverter(IdentityConverter.Instance, new ToNullableConverter());
         }
         [TestMethod]
         public void ToNullable_Happy()

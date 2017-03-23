@@ -15,11 +15,9 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            _converter = new DataConverter(new IConverter[]
-            {
-                new IdentityConverter(),
-                new DynamicConverter()
-            });
+            _converter = new DataConverter(
+                IdentityConverter.Instance,
+                new DynamicConverter());
         }
         [TestCleanup] 
         public void Exit()

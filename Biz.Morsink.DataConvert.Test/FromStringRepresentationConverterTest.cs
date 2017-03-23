@@ -12,11 +12,10 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            converter = new DataConverter(new IConverter[] {
-                new IdentityConverter(),
+            converter = new DataConverter(
+                IdentityConverter.Instance,
                 new FromStringRepresentationConverter(),
-                new TryParseConverter()
-            });
+                new TryParseConverter());
         }
         [TestMethod]
         public void FromStringRep_HappySimple()

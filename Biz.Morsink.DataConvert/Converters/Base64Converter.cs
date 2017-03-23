@@ -9,6 +9,11 @@ namespace Biz.Morsink.DataConvert.Converters
     /// </summary>
     public class Base64Converter : IConverter
     {
+        /// <summary>
+        /// Gets a singleton Base64Converter.
+        /// </summary>
+        public static Base64Converter Instance { get; } = new Base64Converter();
+
         public bool CanConvert(Type from, Type to)
             => from == typeof(string) && to == typeof(byte[])
             || from == typeof(byte[]) && to == typeof(string);

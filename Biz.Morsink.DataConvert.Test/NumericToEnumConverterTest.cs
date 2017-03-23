@@ -19,7 +19,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            converter = new DataConverter(new IConverter[] { new SimpleNumericConverter(), new NumericToEnumConverter() });
+            converter = new DataConverter(SimpleNumericConverter.Instance, new NumericToEnumConverter());
 
         }
         [TestMethod]

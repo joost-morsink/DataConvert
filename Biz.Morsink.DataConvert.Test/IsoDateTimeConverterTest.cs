@@ -12,7 +12,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            converter = new DataConverter(new[] { new IsoDateTimeConverter() });
+            converter = new DataConverter(IsoDateTimeConverter.Instance);
         }
         [TestMethod]
         public void IsoDate_Happy()

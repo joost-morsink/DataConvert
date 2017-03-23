@@ -12,7 +12,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            converter = new DataConverter(new[] { new SimpleNumericConverter() });
+            converter = new DataConverter(SimpleNumericConverter.Instance);
         }
 
         [TestMethod]

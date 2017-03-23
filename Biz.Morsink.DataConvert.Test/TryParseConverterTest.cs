@@ -18,28 +18,28 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void TryParse_Happy()
         {
-            var conv = new DataConverter(new[] { new TryParseConverter() });
+            var conv = new DataConverter(new TryParseConverter());
             Assert.AreEqual(42, conv.Convert("42").To<int>());
             Assert.AreEqual(new DateTime(2017, 3, 12, 19, 15, 0, DateTimeKind.Utc), conv.Convert("2017-03-12T19:15:00Z").To<DateTime>().ToUniversalTime());
             Assert.AreEqual(new Guid("12345678-1234-1234-1234-1234567890ab"), conv.Convert("12345678-1234-1234-1234-1234567890ab").To<Guid>());
         }
-        [TestMethod] 
+        [TestMethod]
         public void TryParse_HappyDecimalSeparator()
         {
-            var conv = new DataConverter(new[] { new TryParseConverter(numberStyles: System.Globalization.NumberStyles.Any) });
+            var conv = new DataConverter(new TryParseConverter(numberStyles: System.Globalization.NumberStyles.Any));
             Assert.AreEqual(42.0, conv.Convert("42.0").To<double>());
-            Assert.AreEqual(420, conv.Convert("42,0").To<double>()); 
+            Assert.AreEqual(420, conv.Convert("42,0").To<double>());
         }
         [TestMethod]
         public void TryParse_UnhappyDecimals()
         {
-            var conv = new DataConverter(new[] { new TryParseConverter(numberStyles: System.Globalization.NumberStyles.Float) });
+            var conv = new DataConverter(new TryParseConverter(numberStyles: System.Globalization.NumberStyles.Float));
             Assert.IsFalse(conv.DoConversion<string, double>("42,00").IsSuccessful);
         }
         [TestMethod]
         public void TryParse_Unhappy()
         {
-            var conv = new DataConverter(new[] { new TryParseConverter() });
+            var conv = new DataConverter(new TryParseConverter());
             Assert.IsFalse(conv.Convert("42x").TryTo<int>(out var _));
             Assert.IsFalse(conv.Convert("42,0").TryTo<int>(out var _));
             Assert.IsFalse(conv.Convert("12345678-1234-1234-1234-1234567890abc").TryTo<Guid>(out var _));

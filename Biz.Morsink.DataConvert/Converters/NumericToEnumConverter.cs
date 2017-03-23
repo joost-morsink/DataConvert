@@ -14,7 +14,7 @@ namespace Biz.Morsink.DataConvert.Converters
     /// </summary>
     public class NumericToEnumConverter : IConverter, IDataConverterRef
     {
-        private static DataConverter helper = new DataConverter(new[] { new SimpleNumericConverter() });
+        private static DataConverter helper = new DataConverter(SimpleNumericConverter.Instance);
 
         public IDataConverter Ref { get; set; }
 

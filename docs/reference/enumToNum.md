@@ -4,3 +4,5 @@ This conversion supports `int` and `long` for to-types and always succeeds.
 No bounds checking is done for enums that have the `long` underlying type.
 
 This converter is not configurable and has no constructor parameters.
+
+This type supports the singleton pattern by implementation of a static property `Instance`.

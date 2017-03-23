@@ -6,3 +6,4 @@ It is meant to be a short circuit way to return the value if the output type mat
 It is not configurable and does not take any constructor parameters. 
 It is included as the first component in the default pipeline.
 
+This type supports the singleton pattern by implementation of a static property `Instance`.

@@ -12,6 +12,11 @@ namespace Biz.Morsink.DataConvert.Converters
     /// </summary>
     public class EnumToNumericConverter : IConverter
     {
+        /// <summary>
+        /// Gets an EnumToNumericConverter singleton.
+        /// </summary>
+        public static EnumToNumericConverter Instance { get; } = new EnumToNumericConverter();
+
         public bool CanConvert(Type from, Type to)
             => from.GetTypeInfo().IsEnum
             && (to == typeof(int) || to == typeof(long));

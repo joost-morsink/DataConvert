@@ -12,6 +12,11 @@ namespace Biz.Morsink.DataConvert.Converters
     /// </summary>
     public class IdentityConverter : IConverter
     {
+        /// <summary>
+        /// Gets a singleton IdentityConverter.
+        /// </summary>
+        public static IdentityConverter Instance { get; } = new IdentityConverter();
+
         public bool CanConvert(Type from, Type to)
             => from == to;
 

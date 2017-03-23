@@ -10,6 +10,11 @@ namespace Biz.Morsink.DataConvert.Converters
     /// </summary>
     public class IsoDateTimeConverter : IConverter
     {
+        /// <summary>
+        /// Gets a singleton IsoDateTimeConverter.
+        /// </summary>
+        public static IsoDateTimeConverter Instance { get; } = new IsoDateTimeConverter();
+        
         public static ConversionResult<string> ToIsoDate(DateTime datetime)
             => new ConversionResult<string>(datetime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
         public static ConversionResult<string> ToIsoDateOffset(DateTimeOffset datetime)

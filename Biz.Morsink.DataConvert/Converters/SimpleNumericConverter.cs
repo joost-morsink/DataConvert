@@ -74,6 +74,10 @@ namespace Biz.Morsink.DataConvert.Converters
             [typeof(double)] = new NumericInfo(8, NumericKind.Floating, double.MinValue, double.MaxValue),
             [typeof(decimal)] = new NumericInfo(16, NumericKind.Decimal, decimal.MinValue, decimal.MaxValue)
         };
+        /// <summary>
+        /// Gets a singleton SimpleNumericConverter.
+        /// </summary>
+        public static SimpleNumericConverter Instance { get; } = new SimpleNumericConverter();
 
         private static bool isNumeric(Type t)
             => infos.ContainsKey(t);

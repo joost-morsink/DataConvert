@@ -11,7 +11,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            converter = new DataConverter(new[] { new Base64Converter() });
+            converter = new DataConverter(Base64Converter.Instance);
         }
         [TestMethod]
         public void Base64_Happy()

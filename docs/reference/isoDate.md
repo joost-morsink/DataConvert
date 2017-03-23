@@ -9,3 +9,5 @@ The standard BCL cannot considered to be safe.
 The string representation is exact up to the millisecond level.
 
 This converter is not configurable and has no constructor parameters.
+
+This type supports the singleton pattern by implementation of a static property `Instance`.

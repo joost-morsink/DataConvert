@@ -13,6 +13,14 @@ namespace Biz.Morsink.DataConvert.Converters
     public class EnumParseConverter : IConverter
     {
         /// <summary>
+        /// Gets a singleton case-sensitive EnumParseConverter 
+        /// </summary>
+        public static EnumParseConverter CaseSensitive { get; } = new EnumParseConverter(false);
+        /// <summary>
+        /// Gets a singleton case-insensitive EnumParseConverter 
+        /// </summary>
+        public static EnumParseConverter CaseInsensitive { get; } = new EnumParseConverter(true);
+        /// <summary>
         /// Constructs the converter
         /// </summary>
         /// <param name="ignoreCase">Indicates whether casing should be ignored in parsing.</param>

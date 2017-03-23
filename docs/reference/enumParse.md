@@ -9,3 +9,5 @@ The EnumParseConverter can be configured using the following parameter:
 | --------- | -------- | ---- | ----------- | 
 | ignoreCase | IgnoreCase | Boolean | Indicates if casing should be ignored when parsing. | 
 
+This type supports the doubleton pattern by implementation of the static properties `CaseSensitive` and `CaseInsensitive`.
+

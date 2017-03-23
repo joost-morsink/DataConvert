@@ -19,7 +19,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestInitialize]
         public void Init()
         {
-            converter = new DataConverter(new[] { new EnumParseConverter(true) });
+            converter = new DataConverter(new EnumParseConverter(true));
         }
 
         [TestMethod]

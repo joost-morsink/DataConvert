@@ -68,7 +68,10 @@ namespace Biz.Morsink.DataConvert
                 r.Ref = this;
             _entries = new ConcurrentDictionary<Tuple<Type, Type>, Entry>();
         }
-
+        public DataConverter(params IConverter[] converters) : this(converters.AsEnumerable())
+        {
+        }
+        
         private Entry getEntry(Type from, Type to)
             => _entries.GetOrAdd(Tuple.Create(from, to), tup =>
             {
@@ -105,21 +108,20 @@ namespace Biz.Morsink.DataConvert
         /// </summary>
         public static IDataConverter Default { get; set; } = CreateDefault();
         public static IDataConverter CreateDefault() =>
-            new DataConverter(new IConverter[]
-            {
-                new IdentityConverter(),
-                new IsoDateTimeConverter(),
-                new Base64Converter(),
+            new DataConverter(
+                IdentityConverter.Instance,
+                IsoDateTimeConverter.Instance,
+                Base64Converter.Instance,
                 new ToStringConverter(true),
                 new TryParseConverter(),
-                new EnumToNumericConverter(),
-                new SimpleNumericConverter(),
+                EnumToNumericConverter.Instance,
+                SimpleNumericConverter.Instance,
                 new NumericToEnumConverter(),
-                new EnumParseConverter(true),
+                EnumParseConverter.CaseInsensitive,
                 new ToNullableConverter(),
                 new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 new DynamicConverter()
-            });
+            );
 
     }
 }

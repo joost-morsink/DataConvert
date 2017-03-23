@@ -11,6 +11,8 @@ Currently all signed .Net numeric types from the `System` namespace are supporte
 
 This converter cannot be configured and has no parameters.
 
+This type supports the singleton pattern by implementation of a static property `Instance`.
+
 ### Implementation
 If the type being converted from is 'smaller' than the type being converted to, a simple implicit conversion can be done.
 If it is 'bigger', then the bounds will be checked before conversion.
