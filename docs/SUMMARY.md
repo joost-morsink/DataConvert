@@ -12,6 +12,7 @@
   * [FromStringRepresentationConverter](reference/fromStringRep.md)
   * [IdentityConverter](reference/identity.md)
   * [IsoDateTimeConverter](reference/isoDate.md)
+  * [NumericToEnumConverter](reference/numToEnum.md)
   * [SimpleNumericConverter](reference/simpleNum.md)
   * [ToNullableConverter](reference/toNullable.md)
   * [ToStringConverter](reference/toString.md)

@@ -113,6 +113,7 @@ namespace Biz.Morsink.DataConvert
                 new TryParseConverter(),
                 new EnumToNumericConverter(),
                 new SimpleNumericConverter(),
+                new NumericToEnumConverter(),
                 new EnumParseConverter(true),
                 new ToNullableConverter(),
                 new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.

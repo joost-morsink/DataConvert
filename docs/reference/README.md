@@ -9,6 +9,7 @@ The following `IConverter` components have been developed:
 * [FromStringRepresentationConverter](fromStringRep.md)
 * [IdentityConverter](identity.md)
 * [IsoDateTimeConverter](isoDate.md)
+* [NumericToEnumConverter](numToEnum.md)
 * [SimpleNumericConverter](simpleNum.md)
 * [ToNullableConverter](toNullable.md)
 * [ToStringConverter](toString.md)

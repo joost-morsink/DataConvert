@@ -8,6 +8,7 @@ The default pipeline consists of the following components in order of occurence:
 * [TryParseConverter](tryParse.md)
 * [EnumToNumericConverter](enumToNum.md)
 * [SimpleNumericConverter](simpleNum.md)
+* [NumericToEnumConverter](numToEnum.md)
 * [EnumParseConverter](enumParse.md)
 * [ToNullableConverter](toNullable.md)
 * [FromStringRepresentationConverter](fromStringRep.md) 

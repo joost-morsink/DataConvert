@@ -53,6 +53,7 @@
     <Compile Include="EnumParseConverterTest.cs" />
     <Compile Include="EnumToNumericConverterTest.cs" />
     <Compile Include="IdentityConverterTest.cs" />
+    <Compile Include="NumericToEnumConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ToStringConverterTest.cs" />
     <Compile Include="TryParseConverterTest.cs" />
