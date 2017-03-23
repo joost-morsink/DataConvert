@@ -10,7 +10,7 @@ namespace Biz.Morsink.DataConvert
     /// <summary>
     /// This is the main implementation of the IDataConverter interface
     /// </summary>
-    public class DataConverter : IDataConverter
+    public class DataConverter : IDataConverter, IConverter
     {
         private readonly IConverter[] _converters;
         private readonly ConcurrentDictionary<Tuple<Type, Type>, Entry> _entries;
@@ -123,5 +123,10 @@ namespace Biz.Morsink.DataConvert
                 new DynamicConverter()
             );
 
+        bool IConverter.CanConvert(Type from, Type to)
+            => _converters.Any(c => c.CanConvert(from, to));
+
+        Delegate IConverter.Create(Type from, Type to)
+            => GetConverter(from, to);
     }
 }
