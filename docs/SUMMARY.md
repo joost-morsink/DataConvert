@@ -20,4 +20,5 @@
   * [ToStringConverter](reference/toString.md)
   * [TryParseConverter](reference/tryParse.md)
   * [TupleConverter](reference/tuple.md)
+  * [TupleToArrayConverter](reference/tuple2arr.md)
   * [Default pipeline](reference/pipeline.md)

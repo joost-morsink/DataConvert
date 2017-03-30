@@ -17,6 +17,7 @@ The following `IConverter` components have been developed:
 * [ToStringConverter](toString.md)
 * [TryParseConverter](tryParse.md)
 * [TupleConverter](tuple.md)
+* [TupleToArrayConverter](tuple2arr.md)
 
 
 ### Default pipeline

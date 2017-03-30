@@ -68,6 +68,7 @@
     <Compile Include="IsoDateTimeConverterTest.cs" />
     <Compile Include="Base64ConverterTest.cs" />
     <Compile Include="TupleConverterTest.cs" />
+    <Compile Include="TupleToArrayConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
