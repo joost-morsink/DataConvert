@@ -18,4 +18,5 @@
   * [ToNullableConverter](reference/toNullable.md)
   * [ToStringConverter](reference/toString.md)
   * [TryParseConverter](reference/tryParse.md)
+  * [TupleConverter](reference/tuple.md)
   * [Default pipeline](reference/pipeline.md)

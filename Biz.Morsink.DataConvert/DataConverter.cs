@@ -119,6 +119,7 @@ namespace Biz.Morsink.DataConvert
                 new NumericToEnumConverter(),
                 EnumParseConverter.CaseInsensitive,
                 new ToNullableConverter(),
+                TupleConverter.Instance,
                 new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 new DynamicConverter()
             );

@@ -12,6 +12,7 @@ The default pipeline consists of the following components in order of occurence:
 * [NumericToEnumConverter](numToEnum.md)
 * [EnumParseConverter](enumParse.md)
 * [ToNullableConverter](toNullable.md)
+* [TupleConverter](tuple.md)
 * [FromStringRepresentationConverter](fromStringRep.md) 
   * Restricted by a RestrictTypesConverter.
 * [DynamicConverter](dynamic.md)
