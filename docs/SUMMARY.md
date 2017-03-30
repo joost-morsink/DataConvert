@@ -8,6 +8,7 @@
   * [Base64Converter](reference/base64.md)
   * [DefaultConvertConverter](reference/default.md)
   * [DynamicConverter](reference/dynamic.md)
+  * [EnumerableToTupleConverter](reference/enumerable2tuple.md)
   * [EnumParseConverter](reference/enumParse.md)
   * [EnumToNumericConverter](reference/enumToNum.md)
   * [FromStringRepresentationConverter](reference/fromStringRep.md)

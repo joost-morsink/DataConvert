@@ -6,6 +6,8 @@ using System.Text;
 using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
+using static Biz.Morsink.DataConvert.Helpers.Tuples;
+
 namespace Biz.Morsink.DataConvert.Converters
 {
     /// <summary>
@@ -13,7 +15,6 @@ namespace Biz.Morsink.DataConvert.Converters
     /// </summary>
     public class TupleConverter : IConverter, IDataConverterRef
     {
-        public const string ValueTuple = nameof(ValueTuple);
         /// <summary>
         /// Gets a TupleConverter singleton.
         /// </summary>
@@ -21,44 +22,8 @@ namespace Biz.Morsink.DataConvert.Converters
 
         public IDataConverter Ref { get; set; }
 
-        /// <summary>
-        /// Gets the tuple arity for a type.
-        /// </summary>
-        private int tupleArity(Type t)
-        {
-            if (t.Namespace == nameof(System) && t.Name.StartsWith(nameof(Tuple) + "`"))
-                return t.GetTypeInfo().GenericTypeArguments.Length;
-            else if (t.Namespace == nameof(System) && (t.Name == ValueTuple || t.Name.StartsWith(ValueTuple+"`")))
-                return t.GetTypeInfo().GenericTypeArguments.Length;
-            else
-                return -1;
-        }
-        /// <summary>
-        /// Gets the type containing the static Create function for the parameter type.
-        /// </summary>
-        private Type creatorType(Type t)
-        {
-            if (t.Namespace == nameof(System) && t.Name.StartsWith(nameof(Tuple) + "`"))
-                return typeof(Tuple);
-            else if (t.Namespace == nameof(System) && (t.Name == ValueTuple || t.Name.StartsWith(ValueTuple+"`")))
-                return t.GetTypeInfo().Assembly.GetType($"{nameof(System)}.{ValueTuple}");
-            else
-                return null;
-        }
-        /// <summary>
-        /// Gets the static Create method to create the parameter type.
-        /// </summary>
-        private MethodInfo creator(Type t)
-        {
-            var generics = t.GetTypeInfo().GenericTypeArguments;
-            var arity = tupleArity(t);
-            return creatorType(t)?.GetTypeInfo().DeclaredMethods
-                .Where(m => m.IsStatic && m.Name == nameof(Tuple.Create) && m.GetGenericArguments().Length == arity && m.GetParameters().Length == arity)
-                .Select(m => m.MakeGenericMethod(generics.ToArray()))
-                .First();
-        }
         public bool CanConvert(Type from, Type to)
-            => tupleArity(from) >= 0 && tupleArity(from) == tupleArity(to);
+            => TupleArity(from) >= 0 && TupleArity(from) == TupleArity(to);
 
         public Delegate Create(Type from, Type to)
         {
@@ -84,7 +49,7 @@ namespace Biz.Morsink.DataConvert.Converters
                     Ex.Block(conversion),
                     Ex.Condition(conversionSuccesful,
                         Result(to,
-                            Ex.Call(creator(to), Enumerable.Select(res, p => Ex.Property(p, nameof(IConversionResult.Result))))),
+                            Ex.Call(Creator(to), Enumerable.Select(res, p => Ex.Property(p, nameof(IConversionResult.Result))))),
                         NoResult(to)));
             var lambda = Ex.Lambda(block, input);
             return lambda.Compile();

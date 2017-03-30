@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DynamicConverterTest.cs" />
+    <Compile Include="EnumerableToTupleConverterTest.cs" />
     <Compile Include="EnumParseConverterTest.cs" />
     <Compile Include="EnumToNumericConverterTest.cs" />
     <Compile Include="IdentityConverterTest.cs" />
