@@ -12,6 +12,7 @@ The following `IConverter` components have been developed:
 * [IdentityConverter](identity.md)
 * [IsoDateTimeConverter](isoDate.md)
 * [NumericToEnumConverter](numToEnum.md)
+* [SeparatedStringConverter](sepString.md)
 * [SimpleNumericConverter](simpleNum.md)
 * [ToNullableConverter](toNullable.md)
 * [ToStringConverter](toString.md)

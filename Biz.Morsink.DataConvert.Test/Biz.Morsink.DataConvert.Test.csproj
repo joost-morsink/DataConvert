@@ -69,6 +69,7 @@
     <Compile Include="Base64ConverterTest.cs" />
     <Compile Include="TupleConverterTest.cs" />
     <Compile Include="TupleToArrayConverterTest.cs" />
+    <Compile Include="SeparatedStringConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
