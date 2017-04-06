@@ -11,8 +11,6 @@ There are different levels of being 'enumerable':
 * If `IEnumerable<T>` is implemented, use to enumerate the elements.
 * Otherwise use `IEnumerable`.
 
-At the time of writing, the top 2 cases are not implemented and use the less efficient mechanisms of cases 3-5.
-
 This converter is not configurable and has no constructor parameters.
 
 This type supports the singleton pattern by implementation of a static property `Instance`.
