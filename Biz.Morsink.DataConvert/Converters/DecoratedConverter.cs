@@ -7,7 +7,7 @@ namespace Biz.Morsink.DataConvert.Converters
     /// <summary>
     /// Abstract base class for applying the decorator pattern to existing IConverters
     /// </summary>
-    public abstract class DecoratedConverter : IConverter
+    public abstract class DecoratedConverter : IConverter, IDataConverterRef
     {
         protected DecoratedConverter(IConverter inner)
         {
@@ -15,6 +15,13 @@ namespace Biz.Morsink.DataConvert.Converters
         }
 
         public IConverter Inner { get; }
+        public IDataConverter Ref {
+            set
+            {
+                if (Inner is IDataConverterRef r)
+                    r.Ref = value;
+            }
+        }
 
         /// <summary>
         /// Implements additional type restrictions on the decorated converter.

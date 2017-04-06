@@ -70,6 +70,7 @@
     <Compile Include="TupleConverterTest.cs" />
     <Compile Include="TupleToArrayConverterTest.cs" />
     <Compile Include="SeparatedStringConverterTest.cs" />
+    <Compile Include="DecoratedConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
