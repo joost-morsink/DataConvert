@@ -23,7 +23,7 @@ namespace Biz.Morsink.DataConvert.Converters
         public IDataConverter Ref { get; set; }
 
         public bool CanConvert(Type from, Type to)
-            => getGetEnumeratorMethod(from) != null && TupleArity(to) >= 0;
+            => from != typeof(string) && getGetEnumeratorMethod(from) != null && TupleArity(to) >= 0;
 
         public Delegate Create(Type from, Type to)
         {
@@ -64,7 +64,7 @@ namespace Biz.Morsink.DataConvert.Converters
 
             var res = toParameters.Select(p => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p))).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
-            var conversion = 
+            var conversion =
                 Ex.Block(res.Zip(converters, (r, con) =>
                     Ex.Block(
                         Ex.IfThenElse(
@@ -79,7 +79,7 @@ namespace Biz.Morsink.DataConvert.Converters
                         Ex.IfThen(Ex.Not(Ex.Property(r, nameof(IConversionResult.IsSuccessful))),
                             Ex.Goto(end, NoResult(to))))));
             var block = Ex.Block(res.Concat(new[] { enumerator }),
-                Ex.Assign(enumerator, Ex.Call(input, getEnumerator)),                 
+                Ex.Assign(enumerator, Ex.Call(input, getEnumerator)),
                 typeof(IDisposable).GetTypeInfo().IsAssignableFrom(enumerator.Type.GetTypeInfo())
                     ? (Ex)Ex.TryFinally(conversion,
                         Ex.Call(enumerator, typeof(IDisposable).GetTypeInfo().GetDeclaredMethod(nameof(IDisposable.Dispose))))
