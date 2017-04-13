@@ -17,13 +17,13 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void Decorated_Happy()
         {
-            Assert.IsTrue(converter.DoConversion<double, int?>(1.0).IsSuccessful);
-            Assert.IsFalse(converter.Convert(1.0).To<int?>().HasValue);
+            Assert.IsTrue(converter.DoConversion<double, int?>(1.0).IsSuccessful, "ToNullableConverter should always succeed on nullable output types");
+            Assert.IsFalse(converter.Convert(1.0).To<int?>().HasValue, "Successful conversion should not be altered by decoration");
         }
         [TestMethod]
         public void Decorated_Unhappy()
         {
-            Assert.IsFalse(converter.DoConversion<int, int?>(1).IsSuccessful);
+            Assert.IsFalse(converter.DoConversion<int, int?>(1).IsSuccessful, "Decoration condition should prevent further conversion");
         }
     }
 }

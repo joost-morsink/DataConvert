@@ -50,16 +50,16 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void Enumerable2Tuple_Happy()
         {
-            Assert.AreEqual(Tuple.Create(1, 2), converter.Convert(new int[] { 1, 2 }).To<Tuple<int, int>>());
-            Assert.AreEqual(Tuple.Create(1, 2, 3), converter.Convert(new TestEnumerable()).To<Tuple<int, int, int>>());
-            Assert.AreEqual((1, 2, 3), converter.Convert(new TestCollection()).To<(int, int, int)>());
-            Assert.AreEqual((1, 2, 3), converter.Convert<IReadOnlyCollection<int>>(new TestCollection()).To<(int, int, int)>());
+            Assert.AreEqual(Tuple.Create(1, 2), converter.Convert(new int[] { 1, 2 }).To<Tuple<int, int>>(), "Int array should convert to int Tuple");
+            Assert.AreEqual(Tuple.Create(1, 2, 3), converter.Convert(new TestEnumerable()).To<Tuple<int, int, int>>(), "Foreachable class should convert to Tuple");
+            Assert.AreEqual((1, 2, 3), converter.Convert(new TestCollection()).To<(int, int, int)>(), "IReadOnlyCollection should convert to Tuple");
+            Assert.AreEqual((1, 2, 3), converter.Convert<IReadOnlyCollection<int>>(new TestCollection()).To<(int, int, int)>(), "Statically typed IReadOnlyCollection should convert to Tuple");
         }
         [TestMethod]
         public void Enumerable2Tuple_Unhappy()
         {
-            Assert.IsFalse(converter.DoConversion<int[], Tuple<int, string>>(new[] { 1, 2 }).IsSuccessful);
-            Assert.IsFalse(converter.DoConversion<int[], Tuple<int, int, int>>(new[] { 1, 2 }).IsSuccessful);
+            Assert.IsFalse(converter.DoConversion<int[], Tuple<int, string>>(new[] { 1, 2 }).IsSuccessful, "EnumerableToTupleConverter should not do component conversions by itself");
+            Assert.IsFalse(converter.DoConversion<int[], Tuple<int, int, int>>(new[] { 1, 2 }).IsSuccessful, "Conversion of enumerables that are too short should fail");
         }
         
     }

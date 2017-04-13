@@ -17,14 +17,14 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void ToNullable_Happy()
         {
-            Assert.AreEqual(42, converter.Convert(42).To<int?>());
-            Assert.AreEqual(3.14159m, converter.Convert(3.14159m).To<decimal?>());
+            Assert.AreEqual(42, converter.Convert(42).To<int?>(), "ToNullableConverter should preserve value of inner int conversion");
+            Assert.AreEqual(3.14159m, converter.Convert(3.14159m).To<decimal?>(), "ToNullableConverter should preserve value of inner decimal conversion");
         }
         [TestMethod]
         public void ToNullable_NoUnhappys()
         {
-            Assert.IsTrue(converter.DoConversion<double, int?>(3.14159).IsSuccessful);
-            Assert.AreEqual(default(int?), converter.Convert<short>(42).To<int?>());
+            Assert.IsTrue(converter.DoConversion<double, int?>(3.14159).IsSuccessful, "ToNullableConverter should not convert by itself (double to int)");
+            Assert.AreEqual(default(int?), converter.Convert<short>(42).To<int?>(), "ToNullableConverter should not convert by itself (short to int)");
         }
 
     }

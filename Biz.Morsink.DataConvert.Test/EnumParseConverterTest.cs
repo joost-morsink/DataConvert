@@ -25,21 +25,21 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void EnumParse_HappyNormal()
         {
-            Assert.AreEqual(TestEnum.Abc, converter.Convert("Abc").To<TestEnum>());
-            Assert.AreEqual(TestEnum.Def, converter.Convert("def").To<TestEnum>());
-            Assert.AreEqual(TestEnum.Ghi, converter.Convert("GHI").To<TestEnum>());
+            Assert.AreEqual(TestEnum.Abc, converter.Convert("Abc").To<TestEnum>(), "Enum string value should be parseable");
+            Assert.AreEqual(TestEnum.Def, converter.Convert("def").To<TestEnum>(), "Enum string value should be case insensitive (lower)");
+            Assert.AreEqual(TestEnum.Ghi, converter.Convert("GHI").To<TestEnum>(), "Enum string value should be case insensitive (upper)");
         }
         [TestMethod]
         public void EnumParse_HappyFlags()
         {
-            Assert.AreEqual(TestFlags.One | TestFlags.Three | TestFlags.Five, converter.Convert("One, Three, Five").To<TestFlags>());
-            Assert.AreEqual(TestFlags.Two | TestFlags.Four, converter.Convert("10").To<TestFlags>());
+            Assert.AreEqual(TestFlags.One | TestFlags.Three | TestFlags.Five, converter.Convert("One, Three, Five").To<TestFlags>(), "Flags enum should parse comma separated flag names");
+            Assert.AreEqual(TestFlags.Two | TestFlags.Four, converter.Convert("10").To<TestFlags>(), "Flags enum should parse numeric strings");
         }
 
         [TestMethod]
         public void EnumParse_Unhappy()
         {
-            Assert.IsFalse(converter.DoConversion<string, TestEnum>("ghij").IsSuccessful);
+            Assert.IsFalse(converter.DoConversion<string, TestEnum>("ghij").IsSuccessful, "Unresolved enum names should fail");
         }
     }
 }

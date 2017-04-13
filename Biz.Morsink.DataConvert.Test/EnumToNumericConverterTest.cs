@@ -23,8 +23,8 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void EnumToNum_Happy()
         {
-            Assert.AreEqual(1, converter.Convert(TestEnum.Abc).To<int>());
-            Assert.AreEqual(2L, converter.Convert(TestEnum.Def).To<long>());
+            Assert.AreEqual(1, converter.Convert(TestEnum.Abc).To<int>(), "Enum should convert to int");
+            Assert.AreEqual(2L, converter.Convert(TestEnum.Def).To<long>(), "Enum should convert to long");
         }
     }
 }

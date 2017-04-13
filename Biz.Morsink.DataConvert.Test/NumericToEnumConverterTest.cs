@@ -25,22 +25,21 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void NumToEnum_Happy()
         {
-            Assert.AreEqual(TestEnum.Ghi, converter.Convert(3).To<TestEnum>());
-            Assert.AreEqual(TestFlags.Two | TestFlags.Three | TestFlags.Five, converter.Convert((short)22).To<TestFlags>());
+            Assert.AreEqual(TestEnum.Ghi, converter.Convert(3).To<TestEnum>(), "Int value should convert to enum value");
+            Assert.AreEqual(TestFlags.Two | TestFlags.Three | TestFlags.Five, converter.Convert((short)22).To<TestFlags>(), "Short value should convert to flags enum value");
         }
         [TestMethod]
         public void NumToEnum_UnhappyRegular()
         {
-            Assert.IsFalse(converter.DoConversion<int, TestEnum>(5).IsSuccessful);
-            Assert.IsFalse(converter.DoConversion<int, TestEnum>(0).IsSuccessful);
+            Assert.IsFalse(converter.DoConversion<int, TestEnum>(5).IsSuccessful, "Conversion to enum should fail if value is too high");
+            Assert.IsFalse(converter.DoConversion<int, TestEnum>(0).IsSuccessful, "Conversion to enum should fail if value is too low");
         }
         [TestMethod]
         public void NumToEnum_UnhappyFlags()
         {
-            Assert.IsFalse(converter.DoConversion<int, TestFlags>(-1).IsSuccessful);
-            Assert.IsFalse(converter.DoConversion<int, TestFlags>(32).IsSuccessful);
-            Assert.IsFalse(converter.DoConversion<int, TestFlags>(999).IsSuccessful);
-
+            Assert.IsFalse(converter.DoConversion<int, TestFlags>(-1).IsSuccessful, "Conversion to flags enum should fail if there are more bits set than flags are present");
+            Assert.IsFalse(converter.DoConversion<int, TestFlags>(32).IsSuccessful," Conversion to flags enum should fail if some set bit cannot be mapped to a flag");
+            Assert.IsFalse(converter.DoConversion<int, TestFlags>(999).IsSuccessful,"Conversion to flags enum should fail for combinations of set flags and set unknown bits");
         }
     }
 }
