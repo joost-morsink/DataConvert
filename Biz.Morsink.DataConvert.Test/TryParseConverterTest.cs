@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Biz.Morsink.DataConvert.Converters;
+using System.Numerics;
 
 namespace Biz.Morsink.DataConvert.Test
 {
@@ -44,6 +45,20 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(conv.Convert("42,0").TryTo<int>(out var _), "Unexpected separator character should fail conversion");
             Assert.IsFalse(conv.Convert("12345678-1234-1234-1234-1234567890abc").TryTo<Guid>(out var _), "Guid string that is too long should fail conversion");
             Assert.IsFalse(conv.Convert("12345678-1234-1234-1234-12345678g0ab").TryTo<Guid>(out var _), "Invalid characters in Guid string should fail conversion");
+        }
+        [TestMethod]
+        public void TryParse_BigInteger()
+        {
+            var conv = new DataConverter(new TryParseConverter());
+            var res = conv.DoConversion<string, BigInteger>("1" + new string('0', 100));
+            Assert.IsTrue(res.IsSuccessful, "String should convert to BigInteger");
+            Assert.AreEqual(1E+100, (double)res.Result, 1e+85, "BigInteger result should be able to contain large numbers");
+            var x = new BigInteger(100000); // 1E+5
+            x *= x; // 1E+10
+            x *= x; // 1E+20
+            x *= x; // 1E+40
+            x *= x; // 1E+80
+            Assert.AreEqual(x, conv.Convert("1" + new string('0', 80)).To<BigInteger>(), "String should convert exactly to BigInteger");
         }
     }
 }
