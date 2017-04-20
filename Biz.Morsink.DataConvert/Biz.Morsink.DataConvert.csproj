@@ -19,12 +19,14 @@
     <RepositoryUrl>https://github.com/joost-morsink/DataConvert.git</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
+    <Optimize>True</Optimize>
     <VersionSuffix>beta003</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Release'">
-    
+    <Optimize>True</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <Optimize>False</Optimize>
     <VersionSuffix>a000debug</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
