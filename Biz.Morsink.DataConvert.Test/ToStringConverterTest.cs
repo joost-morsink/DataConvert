@@ -19,7 +19,8 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsNull(conv.Convert<object>(null).To<string>(), "Null should convert to null string");
         }
         [TestMethod]
-        public void ToString_SucceedOnNull() {
+        public void ToString_SucceedOnNull()
+        {
             var conv = new DataConverter(new ToStringConverter(true));
             Assert.IsNotNull(conv.Convert<string>(null).To<string>(), "Null should not convert to null string");
             Assert.AreEqual("", conv.Convert<string>(null).To<string>(), "Null should convert to empty string");
@@ -29,7 +30,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void ToString_OtherFormatProvider()
         {
-            var conv = new DataConverter(new ToStringConverter(false, CultureInfo.GetCultureInfo("nl-nl")));
+            var conv = new DataConverter(new ToStringConverter(false, new CultureInfo("nl-nl")));
             Assert.AreEqual("1234,56", conv.Convert(1234.56m).To<string>(), "NL-nl culture should use comma as a decimal separator");
         }
         [TestMethod]
