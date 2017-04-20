@@ -7,6 +7,7 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
 {
     public struct Measure
     {
+        public static readonly double TICKFACTOR;
         public static readonly double LOOP_AND_CALL_OVERHEAD;
         static Measure()
         {
@@ -20,6 +21,7 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
             sw.Stop();
 
             LOOP_AND_CALL_OVERHEAD = (double)sw.ElapsedTicks / LEN;
+            TICKFACTOR = (double)new TimeSpan(0,0,1).Ticks / Stopwatch.Frequency;
         }
         private readonly string _name;
         private readonly TimeSpan _span;
@@ -54,7 +56,7 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
         }
         private long MeasureAction(TimeSpan time, Action act)
         {
-            var ticks = time.Ticks;
+            var ticks = (long)(time.Ticks / TICKFACTOR);
             var sw = new Stopwatch();
             long count = 0;
             long lap;
