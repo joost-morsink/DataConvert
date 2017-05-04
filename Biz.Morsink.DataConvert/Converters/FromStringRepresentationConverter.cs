@@ -17,8 +17,11 @@ namespace Biz.Morsink.DataConvert.Converters
     {
         public IDataConverter Ref { get; set; }
         public IFormatProvider FormatProvider { get; }
-        public FromStringRepresentationConverter(IFormatProvider formatProvider = null)
+        public bool RequireDeclaredMethod { get; }
+
+        public FromStringRepresentationConverter(bool requireDeclaredMethod = true, IFormatProvider formatProvider = null)
         {
+            RequireDeclaredMethod = requireDeclaredMethod;
             FormatProvider = formatProvider ?? CultureInfo.InvariantCulture;
         }
         /// <summary>
@@ -26,16 +29,16 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         /// <param name="type">The type containing the ToString method.</param>
         /// <returns>A MethodInfo of a ToString method on the specified type.</returns>
-        public static MethodInfo GetToString(Type type)
+        public MethodInfo GetToString(Type type)
         {
             var q = from m in type.GetTypeInfo().GetDeclaredMethods("ToString")
                     where m.IsPublic && !m.IsStatic && m.ReturnType == typeof(string)
                     let ps = m.GetParameters()
-                    where ps.Length == 0 
+                    where ps.Length == 0
                     || ps.Length == 1 && ps[0].ParameterType == typeof(IFormatProvider)
                     orderby ps.Length descending
                     select m;
-            return q.FirstOrDefault();
+            return q.FirstOrDefault() ?? (RequireDeclaredMethod ? null : typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(object.ToString)));
         }
         private Ex getParameter(ParameterInfo parameter, Ex input)
         {
@@ -45,7 +48,7 @@ namespace Biz.Morsink.DataConvert.Converters
                 throw new ArgumentException("Unknown parameter type");
         }
         public bool CanConvert(Type from, Type to)
-            => from != typeof(string) && from != typeof(object);
+            => from != typeof(string) && from != typeof(object) && GetToString(from) != null;
 
         public Delegate Create(Type from, Type to)
         {

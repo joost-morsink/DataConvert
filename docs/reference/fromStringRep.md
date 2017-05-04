@@ -2,7 +2,9 @@
 
 This converter uses a backreference to try to convert the string representation of the input object.
 It is meant to be used as a fallback component, because conversion to string and parsing could potentially be expensive operations.
-It uses the parameterless virtual `ToString` method on `Object` to convert the input value to a `String`, which is passed back.
+It uses a `ToString` method with an `IFormatProvider` typed parameter if one is present, otherwise a parameterless `ToString` method if one is declared.
+The `Object.ToString` method is only used if `RequireDeclaredMethod` is `false`.
+The result is passed back into the data converter.
 If the input is a `null` value (applies only to reference types), the conversion fails.
 
 ### Parameters
@@ -10,6 +12,7 @@ The TryParseConverter class is configurable through the following constructor pa
 
 | Parameter | Property | Type | Description | Default |
 | --------- | -------- | ---- | ----------- | ------- |
+| requireDeclaredMethod | RequireDeclaredMethod | bool | Indicates whether a `ToString` method needs to be declared on the type. | 
 | formatProvider | FormatProvider | IFormatProvider | The `IFormatProvider` to use as a `ToString` method parameter | CultureInfo.InvariantCulture | 
 
 ### Example

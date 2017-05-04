@@ -30,7 +30,7 @@ namespace Biz.Morsink.DataConvert.Test
         [TestMethod]
         public void ToString_OtherFormatProvider()
         {
-            var conv = new DataConverter(new ToStringConverter(false, new CultureInfo("nl-nl")));
+            var conv = new DataConverter(new ToStringConverter(false, false, new CultureInfo("nl-nl")));
             Assert.AreEqual("1234,56", conv.Convert(1234.56m).To<string>(), "NL-nl culture should use comma as a decimal separator");
         }
         [TestMethod]
@@ -38,6 +38,18 @@ namespace Biz.Morsink.DataConvert.Test
         {
             var conv = new DataConverter(new ToStringConverter(false));
             Assert.AreEqual("ERROR", conv.Convert<object>(42).To<string>("ERROR"), "ToStringConverter should fail on untyped object");
+        }
+        [TestMethod]
+        public void ToString_NoToString()
+        {
+            var conv = new DataConverter(IdentityConverter.Instance, new ToStringConverter(false, true));
+            Assert.IsFalse(conv.DoConversion<NoToStringMethod, string>(new NoToStringMethod()).IsSuccessful);
+            conv = new DataConverter(IdentityConverter.Instance, new ToStringConverter(false, false));
+            Assert.IsTrue(conv.DoConversion<NoToStringMethod, string>(new NoToStringMethod()).IsSuccessful);
+        }
+        public class NoToStringMethod
+        {
+
         }
     }
 }

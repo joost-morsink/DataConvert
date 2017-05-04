@@ -21,13 +21,17 @@ namespace Biz.Morsink.DataConvert.Converters
         /// <param name="succeedOnNull">
         ///     Indicates whether a null input value should succeed (with a result empty string).
         /// </param>
+        /// <param name="requireDeclaredMethod">
+        ///     Indicates whether a parameterless ToString method is required for conversion, or if the default object.ToString may be used.
+        /// </param>
         /// <param name="formatProvider">
         ///     Defines the IFormatProvider to be optionally used in the ToString method.
         ///     Default value is CultureInfo.InvariantCulture
         /// </param>
-        public ToStringConverter(bool succeedOnNull, IFormatProvider formatProvider = null)
+        public ToStringConverter(bool succeedOnNull, bool requireDeclaredMethod = true, IFormatProvider formatProvider = null)
         {
             SucceedOnNull = succeedOnNull;
+            RequireDeclaredMethod = requireDeclaredMethod;
             FormatProvider = formatProvider ?? CultureInfo.InvariantCulture;
         }
         /// <summary>
@@ -38,21 +42,17 @@ namespace Biz.Morsink.DataConvert.Converters
         /// Gets the IFormatProvider used for ToString conversions
         /// </summary>
         public IFormatProvider FormatProvider { get; }
+        /// <summary>
+        /// Indicates whether a declared parameterless ToString methods is required for conversion.
+        /// </summary>
+        public bool RequireDeclaredMethod { get; }
 
         public bool CanConvert(Type from, Type to)
-            => from != typeof(object) && to == typeof(string);
+            => from != typeof(object) && to == typeof(string) && GetToString(from) != null;
 
         public Delegate Create(Type from, Type to)
         {
-            var toString = (from method in @from.GetTypeInfo().DeclaredMethods
-                            where method.IsPublic && !method.IsStatic && method.Name == nameof(object.ToString)
-                            let parameters = method.GetParameters()
-                            where parameters.Length == 1 && parameters[0].ParameterType == typeof(IFormatProvider)
-                            select method).Concat(
-                            from method in typeof(object).GetTypeInfo().DeclaredMethods
-                            where method.IsPublic && !method.IsStatic && method.Name == nameof(object.ToString)
-                                && method.GetParameters().Length == 0
-                            select method).First();
+            var toString = GetToString(from);
             var input = Ex.Parameter(from, "input");
 
             // Conversion from value types does not need to deal with null values.
@@ -71,6 +71,19 @@ namespace Biz.Morsink.DataConvert.Converters
                 var lambda = Ex.Lambda(block, input);
                 return lambda.Compile();
             }
+        }
+
+        private MethodInfo GetToString(Type from)
+        {
+            return (from method in @from.GetTypeInfo().DeclaredMethods
+                    where method.IsPublic && !method.IsStatic && method.Name == nameof(object.ToString)
+                    let parameters = method.GetParameters()
+                    where parameters.Length == 1 && parameters[0].ParameterType == typeof(IFormatProvider)
+                    select method).Concat(
+                    from method in (RequireDeclaredMethod ? @from : typeof(object)).GetTypeInfo().DeclaredMethods
+                    where method.IsPublic && !method.IsStatic && method.Name == nameof(object.ToString)
+                        && method.GetParameters().Length == 0
+                    select method).FirstOrDefault();
         }
 
         private Ex getResult(Type to, MethodInfo toString, System.Linq.Expressions.ParameterExpression input)

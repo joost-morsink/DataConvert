@@ -37,6 +37,11 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(converter.DoConversion<DateTime, int>(new DateTime(2017, 3, 16, 8, 2, 0, DateTimeKind.Utc)).IsSuccessful, "DateTime representation should not be parseable to int");
             Assert.IsFalse(converter.DoConversion<Version, double>(new Version("1.0.0")).IsSuccessful, "Version string with third component should fail on numeric parse methods");
             Assert.IsFalse(converter.DoConversion<int, Guid>(42).IsSuccessful, "Int representation should not convert to Guid");
+            Assert.IsFalse(converter.DoConversion<NoToStringMethod, string>(new NoToStringMethod()).IsSuccessful);
+        }
+        public class NoToStringMethod
+        {
+
         }
     }
 }

@@ -19,7 +19,7 @@
     <RepositoryUrl>https://github.com/joost-morsink/DataConvert.git</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
-    <VersionSuffix>beta003</VersionSuffix>
+    <VersionSuffix>beta004</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Release'">
     

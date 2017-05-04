@@ -40,6 +40,8 @@ namespace Biz.Morsink.DataConvert.Test
             var sconv = _converter.GetConverter<string, string>();
             Assert.IsTrue(sconv("hello").IsSuccessful, "IdentityConverter should convert a string to itself");
             Assert.AreEqual("hello", sconv("hello").Result, "IdentityConverter should preserve the value of a string when converted to itself");
+
+            Assert.IsTrue(_converter.Convert(new Dummy()).TryTo(out Dummy result));
         }
         [TestMethod]
         public void Identity_Impossible()
@@ -51,4 +53,5 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(sconv("hello").IsSuccessful, "IdentityConverter should fail on converting string to object");
         }
     }
+    public class Dummy { }
 }
