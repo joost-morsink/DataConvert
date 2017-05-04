@@ -20,11 +20,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
     <VersionSuffix>beta004</VersionSuffix>
+    <Optimize>True</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Release'">
-    
+    <Optimize>True</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <Optimize>False</Optimize>
     <VersionSuffix>a000debug</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>

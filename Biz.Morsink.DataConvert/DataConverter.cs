@@ -22,17 +22,21 @@ namespace Biz.Morsink.DataConvert
             public static Entry Make<T, U>(IEnumerable<Func<T, ConversionResult<U>>> fs)
             {
                 var functions = fs.ToArray();
-                var specific = new Func<T, ConversionResult<U>>(i =>
-                {
-                    ConversionResult<U> res;
-                    for (int j = 0; j < functions.Length; j++)
-                    {
-                        res = functions[j](i);
-                        if (res.IsSuccessful)
-                            return res;
-                    }
-                    return new ConversionResult<U>();
-                });
+                var specific = functions.Length == 0
+                    ? _ => new ConversionResult<U>()
+                    : functions.Length == 1
+                        ? functions[0]
+                        : new Func<T, ConversionResult<U>>(i =>
+                        {
+                            ConversionResult<U> res;
+                            for (int j = 0; j < functions.Length; j++)
+                            {
+                                res = functions[j](i);
+                                if (res.IsSuccessful)
+                                    return res;
+                            }
+                            return new ConversionResult<U>();
+                        });
                 var generic = new Func<object, IConversionResult>(i => specific((T)i));
                 return new Entry(generic, specific);
             }
@@ -71,7 +75,7 @@ namespace Biz.Morsink.DataConvert
         public DataConverter(params IConverter[] converters) : this(converters.AsEnumerable())
         {
         }
-        
+
         private Entry getEntry(Type from, Type to)
             => _entries.GetOrAdd(Tuple.Create(from, to), tup =>
             {
