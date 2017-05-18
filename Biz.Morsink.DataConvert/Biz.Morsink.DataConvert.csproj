@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>DataConvert</Title>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>0.2.0</VersionPrefix>
     <Authors>Joost W. Morsink</Authors>
     <Company>Morsink Software</Company>
     <PackageId>Biz.Morsink.DataConvert</PackageId>
@@ -19,7 +19,7 @@
     <RepositoryUrl>https://github.com/joost-morsink/DataConvert.git</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
-    <VersionSuffix>beta004</VersionSuffix>
+    <VersionSuffix>beta001</VersionSuffix>
     <Optimize>True</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Release'">
