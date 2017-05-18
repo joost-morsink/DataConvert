@@ -59,7 +59,7 @@ namespace Biz.Morsink.DataConvert.Converters
                     .MakeGenericMethod(new[] { typeof(string), to }),
                     Ex.Constant(Ref),
                     Ex.Call(input, toString, toString.GetParameters().Select(pi => getParameter(pi, input))));
-            if (!to.GetTypeInfo().IsValueType)
+            if (!from.GetTypeInfo().IsValueType)
                 block = Ex.Condition(Ex.MakeBinary(Et.Equal, input, Ex.Default(from)),
                     NoResult(to),
                     block);
