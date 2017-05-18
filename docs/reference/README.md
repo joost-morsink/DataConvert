@@ -11,6 +11,7 @@ The following `IConverter` components have been developed:
 * [FromStringRepresentationConverter](fromStringRep.md)
 * [IdentityConverter](identity.md)
 * [IsoDateTimeConverter](isoDate.md)
+* [LosslessStringToTupleConverter](llStr2Tup.md)
 * [NumericToEnumConverter](numToEnum.md)
 * [SeparatedStringConverter](sepString.md)
 * [SimpleNumericConverter](simpleNum.md)

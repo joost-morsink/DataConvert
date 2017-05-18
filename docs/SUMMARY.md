@@ -14,6 +14,7 @@
   * [FromStringRepresentationConverter](reference/fromStringRep.md)
   * [IdentityConverter](reference/identity.md)
   * [IsoDateTimeConverter](reference/isoDate.md)
+  * [LosslessStringToTupleConverter](reference/llStr2tup.md)
   * [NumericToEnumConverter](reference/numToEnum.md)
   * [SeparatedStringConverter](reference/sepString.md)
   * [SimpleNumericConverter](reference/simpleNum.md)

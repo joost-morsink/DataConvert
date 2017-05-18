@@ -22,6 +22,10 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public char[] Separators { get; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="separators">Separator characters to use in this converter.</param>
         public SeparatedStringConverter(params char[] separators)
         {
             Separators = separators;

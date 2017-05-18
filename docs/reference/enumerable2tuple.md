@@ -2,6 +2,7 @@
 This component converts from any enumerable type to a tuple type by converting the enumerated values one by one into component values for the tuple. 
 It supports regular `System.Tuple` types as well as the new `System.ValueTuple` types. 
 The enumerable should have _at least_ as many elements as the arity of the resulting tuple.
+**The other elements will be discarded.**
 
 There are different levels of being 'enumerable':
 * If a `IReadOnlyList<T>` is implemented, the `Count` property can be used to check if there are enough component values and the indexer can be used to directly access elements of the list.

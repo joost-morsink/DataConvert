@@ -9,6 +9,9 @@ Different strategies for conversion to a separated string are implemented:
 * If the input type is (assignable to) `IEnumerable<T>`, it will use the generic `string.Join<T>` overload.
 * Otherwise the input will be converted to a `string[]` first, before `string.Join` is called. 
 
+Using this converter in combination with [EnumerableToTupleConverter](enumerable2tuple.md) could lead to a loss of information.
+A solution might be the use of a [LosslessStringToTupleConverter](llStr2Tup.md).
+
 ### Parameters
 The SeparatedStringConverter class is configurable through the following constructor parameters:
 

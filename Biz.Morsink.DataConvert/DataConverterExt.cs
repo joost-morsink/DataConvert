@@ -88,6 +88,13 @@ namespace Biz.Morsink.DataConvert
             /// <returns>True if the conversion is successful.</returns>
             public bool TryTo<U>(out U result)
                 => _converter.TryConvert(_value, out result);
+            /// <summary>
+            /// Converts the value to a U, returns the ConversionResult.
+            /// </summary>
+            /// <typeparam name="U">The type to be converted to.</typeparam>
+            /// <returns>The conversion result, or some default value.</returns>
+            public ConversionResult<U> Result<U>()
+                => _converter.DoConversion<T, U>(_value);
         }
         /// <summary>
         /// 'Fluent api' to indicate some value is to be converted.
