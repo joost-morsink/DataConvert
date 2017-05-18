@@ -39,6 +39,13 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(converter.DoConversion<int, Guid>(42).IsSuccessful, "Int representation should not convert to Guid");
             Assert.IsFalse(converter.DoConversion<NoToStringMethod, string>(new NoToStringMethod()).IsSuccessful);
         }
+        [TestMethod]
+        public void FromStringRep_ValueToRefWithoutEqual()
+        {
+            var res = converter.DoConversion<(int, int, int), string>((1, 2, 3));
+            Assert.IsTrue(res.IsSuccessful);
+            Assert.AreEqual("(1, 2, 3)", res.Result);
+        }
         public class NoToStringMethod
         {
 
