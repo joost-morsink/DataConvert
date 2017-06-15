@@ -7,6 +7,8 @@ using static Biz.Morsink.DataConvert.DataConvertUtils;
 using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 using System.Reflection;
+using System.Linq.Expressions;
+using Biz.Morsink.DataConvert.Helpers;
 
 namespace Biz.Morsink.DataConvert.Converters
 {
@@ -30,18 +32,21 @@ namespace Biz.Morsink.DataConvert.Converters
         /// The separator used to separate parts of the string.
         /// </summary>
         public char Separator { get; }
+
+        public bool SupportsLambda => true;
+
         private readonly Ex _separator;
         private readonly Ex _separatorString;
 
         public bool CanConvert(Type from, Type to)
             => from == typeof(string) && TupleArity(to) > 1;
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var toParameters = to.GetTypeInfo().GenericTypeArguments;
             var tupa = toParameters.Length;
             var input = Ex.Parameter(from, "input");
-            var converters = toParameters.Select(p => Ref.GetConverter(typeof(string), p)).ToArray();
+            var converters = toParameters.Select(p => Ref.GetLambda(typeof(string), p)).ToArray();
             var res = toParameters.Select(p => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p))).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
             var indexer = typeof(string[]).GetTypeInfo().GetDeclaredProperty("Item");
@@ -50,8 +55,7 @@ namespace Biz.Morsink.DataConvert.Converters
             var conversion = Ex.Block(converters.Select((c, i) =>
                 Ex.Block(
                     Ex.Assign(res[i],
-                        Ex.Invoke(Ex.Constant(c, typeof(Func<,>).MakeGenericType(typeof(string), typeof(ConversionResult<>).MakeGenericType(toParameters[i]))),
-                            Ex.MakeIndex(split, indexer, new[] { Ex.MakeBinary(Et.Add,Ex.Constant(i), Ex.MakeBinary(Et.Subtract, Ex.Property(split, nameof(Array.Length)), Ex.Constant(tupa))) }))),
+                        c.ApplyTo(Ex.MakeIndex(split, indexer, new[] { Ex.MakeBinary(Et.Add, Ex.Constant(i), Ex.MakeBinary(Et.Subtract, Ex.Property(split, nameof(Array.Length)), Ex.Constant(tupa))) }))),
                     Ex.IfThen(Ex.Not(Ex.Property(res[i], nameof(IConversionResult.IsSuccessful))),
                         Ex.Goto(end, NoResult(to))))));
             var block = Ex.Block(new[] { split },
@@ -67,7 +71,10 @@ namespace Biz.Morsink.DataConvert.Converters
                         conversion,
                         Ex.Label(end, Result(to, Ex.Call(Creator(to), res.Select(r => Ex.Property(r, nameof(IConversionResult.Result)))))))));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
-        }               
+            return lambda;
+        }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

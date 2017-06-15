@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Biz.Morsink.DataConvert.Converters
@@ -23,6 +24,8 @@ namespace Biz.Morsink.DataConvert.Converters
             }
         }
 
+        public bool SupportsLambda => Inner.SupportsLambda;
+
         /// <summary>
         /// Implements additional type restrictions on the decorated converter.
         /// </summary>
@@ -44,5 +47,16 @@ namespace Biz.Morsink.DataConvert.Converters
             => del;
         public Delegate Create(Type from, Type to)
             => DecorateDelegate(Inner.Create(from, to), from, to);
+        /// <summary>
+        /// Decorates the resulting conversion lambda.
+        /// </summary>
+        /// <param name="lambda">The lambda expression from the decorated converter is passed in here.</param>
+        /// <param name="from">The type to convert from.</param>
+        /// <param name="to">The type to convert to.</param>
+        /// <returns>A possibly decorated conversion lambda.</returns>
+        public virtual LambdaExpression DecorateLambda(LambdaExpression lambda, Type from, Type to)
+            => lambda;
+        public LambdaExpression CreateLambda(Type from, Type to)
+            => DecorateLambda(Inner.CreateLambda(from, to), from, to);
     }
 }

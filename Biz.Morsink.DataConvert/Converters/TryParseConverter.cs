@@ -28,6 +28,9 @@ namespace Biz.Morsink.DataConvert.Converters
         /// Gets the NumberStyles value to be used on TryParse methods.
         /// </summary>
         public NumberStyles NumberStyles { get; }
+
+        public bool SupportsLambda => true;
+
         /// <summary>
         /// Gets a 'TryParse' method. This method is selected using the following criteria:
         /// <list type="bullet">
@@ -74,7 +77,7 @@ namespace Biz.Morsink.DataConvert.Converters
         public bool CanConvert(Type from, Type to)
             => from == typeof(string) && GetMethod(to) != null;
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var input = Ex.Parameter(from, "input");
             var result = Ex.Parameter(to, "result");
@@ -84,7 +87,10 @@ namespace Biz.Morsink.DataConvert.Converters
                     Result(to, result),
                     NoResult(to)));
 
-            return Ex.Lambda(block, input).Compile();
+            return Ex.Lambda(block, input);
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

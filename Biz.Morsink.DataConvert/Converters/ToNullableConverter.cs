@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Text;
 using Ex = System.Linq.Expressions.Expression;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
+using System.Linq.Expressions;
+using Biz.Morsink.DataConvert.Helpers;
 
 namespace Biz.Morsink.DataConvert.Converters
 {
@@ -16,23 +18,22 @@ namespace Biz.Morsink.DataConvert.Converters
     {
         public IDataConverter Ref { get; set; }
 
+        public bool SupportsLambda => true;
+
         public bool CanConvert(Type from, Type to)
             => to.GetTypeInfo().GenericTypeArguments.Length == 1
             && to.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>);
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var innerTo = to.GetTypeInfo().GenericTypeArguments[0];
             var input = Ex.Parameter(from, "input");
             var resultType = typeof(ConversionResult<>).MakeGenericType(innerTo);
             var result = Ex.Parameter(resultType, "result");
 
-            var baseConverter = Ref.GetConverter(from, innerTo);
+            var baseConverter = Ref.GetLambda(from, innerTo);
             var block = Ex.Block(new[] { result },
-                Ex.Assign(result,
-                    Ex.Invoke(
-                        Ex.Constant(baseConverter, typeof(Func<,>).MakeGenericType(from, resultType)),
-                        input)),
+                Ex.Assign(result, baseConverter.ApplyTo(input)),
                 Ex.Condition(Ex.Property(result, nameof(IConversionResult.IsSuccessful)),
                     Result(to,
                         Ex.New(typeof(Nullable<>)
@@ -43,7 +44,10 @@ namespace Biz.Morsink.DataConvert.Converters
                             Ex.Property(result, nameof(IConversionResult.Result)))),
                     Result(to, Ex.Default(typeof(Nullable<>).MakeGenericType(innerTo)))));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

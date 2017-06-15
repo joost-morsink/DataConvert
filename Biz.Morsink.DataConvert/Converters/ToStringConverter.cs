@@ -8,6 +8,7 @@ using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 namespace Biz.Morsink.DataConvert.Converters
 {
+    using System.Linq.Expressions;
     using static DataConvertUtils;
     /// <summary>
     /// This converter handles all conversions to string using either the object.ToString() or a specific ToString(IFormatProvider) method. 
@@ -47,10 +48,12 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public bool RequireDeclaredMethod { get; }
 
+        public bool SupportsLambda => throw new NotImplementedException();
+
         public bool CanConvert(Type from, Type to)
             => from != typeof(object) && to == typeof(string) && GetToString(from) != null;
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var toString = GetToString(from);
             var input = Ex.Parameter(from, "input");
@@ -60,7 +63,7 @@ namespace Biz.Morsink.DataConvert.Converters
             {
                 var block = getResult(to, toString, input);
                 var lambda = Ex.Lambda(block, input);
-                return lambda.Compile();
+                return lambda;
             }
             else
             {
@@ -69,7 +72,7 @@ namespace Biz.Morsink.DataConvert.Converters
                     SucceedOnNull ? Result(to, Ex.Constant("")) : NoResult(to),
                     inner);
                 var lambda = Ex.Lambda(block, input);
-                return lambda.Compile();
+                return lambda;
             }
         }
 
@@ -92,5 +95,8 @@ namespace Biz.Morsink.DataConvert.Converters
                 ? Result(to, Ex.Call(input, toString))
                 : Result(to, Ex.Call(input, toString, Ex.Constant(FormatProvider)));
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

@@ -4,6 +4,7 @@ using System.Text;
 using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
+using System.Linq.Expressions;
 
 namespace Biz.Morsink.DataConvert.Converters
 {
@@ -79,12 +80,14 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public static SimpleNumericConverter Instance { get; } = new SimpleNumericConverter();
 
+        public bool SupportsLambda => true;
+
         private static bool isNumeric(Type t)
             => infos.ContainsKey(t);
         public bool CanConvert(Type from, Type to)
             => isNumeric(from) && isNumeric(to);
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var input = Ex.Parameter(from, "input");
             var fromInfo = infos[from];
@@ -93,7 +96,7 @@ namespace Biz.Morsink.DataConvert.Converters
             {
                 var block = Result(to, Ex.Convert(input, to));
                 var lambda = Ex.Lambda(block, input);
-                return lambda.Compile();
+                return lambda;
             }
             else // Cannot make use of an implicit conversion, bounds must be checked. Precision might be lost.
             {
@@ -108,8 +111,11 @@ namespace Biz.Morsink.DataConvert.Converters
                     Result(to, Ex.Convert(input, to)),
                     NoResult(to));
                 var lambda = Ex.Lambda(block, input);
-                return lambda.Compile();
+                return lambda;
             }
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

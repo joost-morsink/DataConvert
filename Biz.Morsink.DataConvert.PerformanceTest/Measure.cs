@@ -69,6 +69,7 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
                     act();
                 count += len;
             }
+            GC.Collect(2);
             sw.Stop();
             var laco = (long)(LOOP_AND_CALL_OVERHEAD * count);
             var factor = (double)sw.ElapsedTicks / (sw.ElapsedTicks - laco);

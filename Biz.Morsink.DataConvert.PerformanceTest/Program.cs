@@ -30,6 +30,14 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
                 .ReferenceAction(() => { var _ = Convert.ToInt32("42", ic); })
                 .MeasurementAction(() => { var _ = c("42").Result; });
         }
+        private static Measure StringToNullableInt(IDataConverter converter)
+        {
+            var c = converter.GetConverter<string, int?>();
+            var ic = CultureInfo.InvariantCulture;
+            return Measure.Create("string to int? conversion")
+                .ReferenceAction(() => { var _ = (int?)Convert.ToInt32("42"); }) 
+                .MeasurementAction(() => { var _ = c("42").Result; });
+        }
         private static Measure DynamicStringToInt(IDataConverter converter)
         {
             var c = converter.GetConverter<object, int>();

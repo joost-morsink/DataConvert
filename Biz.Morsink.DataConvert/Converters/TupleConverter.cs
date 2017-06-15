@@ -7,6 +7,8 @@ using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
 using static Biz.Morsink.DataConvert.Helpers.Tuples;
+using System.Linq.Expressions;
+using Biz.Morsink.DataConvert.Helpers;
 
 namespace Biz.Morsink.DataConvert.Converters
 {
@@ -22,26 +24,25 @@ namespace Biz.Morsink.DataConvert.Converters
 
         public IDataConverter Ref { get; set; }
 
+        public bool SupportsLambda => true;
+
         public bool CanConvert(Type from, Type to)
             => TupleArity(from) >= 0 && TupleArity(from) == TupleArity(to);
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var fromParameters = from.GetTypeInfo().GenericTypeArguments;
             var toParameters = to.GetTypeInfo().GenericTypeArguments;
 
             var converters = fromParameters
-                .Zip(toParameters, (f, t) => Ref.GetConverter(f, t))
+                .Zip(toParameters, (f, t) => Ref.GetLambda(f, t))
                 .ToArray();
             var input = Ex.Parameter(from, "input");
 
             var res = toParameters.Select(t => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(t))).ToArray();
 
             var conversion = res.Select((r, i) =>
-                    Ex.Assign(res[i],
-                        Ex.Invoke(
-                            Ex.Constant(converters[i], typeof(Func<,>).MakeGenericType(fromParameters[i], typeof(ConversionResult<>).MakeGenericType(toParameters[i]))),
-                            Ex.PropertyOrField(input, $"Item{i + 1}")))).ToArray(); 
+                    Ex.Assign(res[i], converters[i].ApplyTo(Ex.PropertyOrField(input, $"Item{i + 1}")))).ToArray();
             var conversionSuccesful = Enumerable.Aggregate(res, (Ex)Ex.Constant(true),
                             (c, p) => Ex.MakeBinary(Et.AndAlso, c, Ex.Property(p, nameof(IConversionResult.IsSuccessful))));
 
@@ -52,8 +53,11 @@ namespace Biz.Morsink.DataConvert.Converters
                             Ex.Call(Creator(to), Enumerable.Select(res, p => Ex.Property(p, nameof(IConversionResult.Result))))),
                         NoResult(to)));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
 
     }
 }

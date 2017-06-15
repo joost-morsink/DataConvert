@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq.Expressions;
 using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 namespace Biz.Morsink.DataConvert.Converters
@@ -14,10 +15,12 @@ namespace Biz.Morsink.DataConvert.Converters
     {
         public IDataConverter Ref { get; set; }
 
+        public bool SupportsLambda => true;
+
         public bool CanConvert(Type from, Type to)
             => from == typeof(object);
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var input = Ex.Parameter(from, "input");
             var type = Ex.Parameter(typeof(Type), "type");
@@ -34,7 +37,9 @@ namespace Biz.Morsink.DataConvert.Converters
                                 typeof(ConversionResult<>).MakeGenericType(to))));
             
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

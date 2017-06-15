@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Biz.Morsink.DataConvert.Converters
@@ -14,7 +15,9 @@ namespace Biz.Morsink.DataConvert.Converters
         /// Gets a singleton IsoDateTimeConverter.
         /// </summary>
         public static IsoDateTimeConverter Instance { get; } = new IsoDateTimeConverter();
-        
+
+        public bool SupportsLambda => false;
+
         public static ConversionResult<string> ToIsoDate(DateTime datetime)
             => new ConversionResult<string>(datetime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
         public static ConversionResult<string> ToIsoDateOffset(DateTimeOffset datetime)
@@ -57,5 +60,8 @@ namespace Biz.Morsink.DataConvert.Converters
             }
             throw new ArgumentException("Cannot convert between types");
         }
+
+        public LambdaExpression CreateLambda(Type from, Type to)
+            => null;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Linq.Expressions;
 namespace Biz.Morsink.DataConvert
 {
     /// <summary>
@@ -21,7 +21,18 @@ namespace Biz.Morsink.DataConvert
         /// </summary>
         /// <param name="from">The type to convert from.</param>
         /// <param name="to">The type to convert to.</param>
-        /// <returns>A Func&gt;T, ConversionResult&gt;U&lt;&lt; that implements conversion.</returns>
+        /// <returns>A Func&lt;T, ConversionResult&lt;U&gt;&gt; that implements conversion.</returns>
         Delegate Create(Type from, Type to);
+        /// <summary>
+        /// True if this converter is able to return a LambdaExpression.
+        /// </summary>
+        bool SupportsLambda { get; }
+        /// <summary>
+        /// When supported creates a lambda expression for the conversion.
+        /// </summary>
+        /// <param name="from">The type to convert from.</param>
+        /// <param name="to">The type to convert to.</param>
+        /// <returns>When supported, a LambdaExpression that implements conversion. Otherwise null.</returns>
+        LambdaExpression CreateLambda(Type from, Type to);
     }
 }

@@ -6,6 +6,9 @@ using System.Text;
 using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
+using System.Linq.Expressions;
+using Biz.Morsink.DataConvert.Helpers;
+
 namespace Biz.Morsink.DataConvert.Converters
 {
     /// <summary>
@@ -18,12 +21,14 @@ namespace Biz.Morsink.DataConvert.Converters
 
         public IDataConverter Ref { get; set; }
 
+        public bool SupportsLambda => true;
+
         public bool CanConvert(Type from, Type to)
             => (from == typeof(sbyte) || from == typeof(short) || from == typeof(int) || from == typeof(long)
                 || from == typeof(byte) || from == typeof(ushort) || from == typeof(uint) || from == typeof(ulong))
             && to.GetTypeInfo().IsEnum;
         
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var input = Ex.Parameter(from, "input");
             var ut = Enum.GetUnderlyingType(to);
@@ -40,7 +45,7 @@ namespace Biz.Morsink.DataConvert.Converters
                         Result(to, Ex.Convert(input, to)),
                         NoResult(to));
                     var lambda = Ex.Lambda(block, input);
-                    return lambda.Compile();
+                    return lambda;
                 }
                 else
                 {
@@ -54,25 +59,25 @@ namespace Biz.Morsink.DataConvert.Converters
                         Result(to, Ex.Convert(input, to)),
                         NoResult(to));
                     var lambda = Ex.Lambda(block, input);
-                    return lambda.Compile();
+                    return lambda;
                 }
             }
             else
             {
                 var res = Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(ut), "res");
+                var c1 = Ref.GetLambda(from, ut);
+                var c2 = Ref.GetLambda(ut, to);
                 var block = Ex.Block(new[] { res },
-                    Ex.Assign(res,
-                        Ex.Call(typeof(DataConverterExt).GetTypeInfo().GetDeclaredMethod(nameof(DataConverterExt.DoConversion)).MakeGenericMethod(from, ut),
-                            Ex.Constant(Ref),
-                            input)),
+                    Ex.Assign(res, c1.ApplyTo(input)),
                     Ex.Condition(Ex.Property(res, nameof(IConversionResult.IsSuccessful)),
-                        Ex.Call(typeof(DataConverterExt).GetTypeInfo().GetDeclaredMethod(nameof(DataConverterExt.DoConversion)).MakeGenericMethod(ut, to),
-                            Ex.Constant(Ref),
-                            Ex.Property(res, nameof(IConversionResult.Result))),
+                        c2.ApplyTo(Ex.Property(res, nameof(IConversionResult.Result))),
                         NoResult(to)));
                 var lambda = Ex.Lambda(block, input);
-                return lambda.Compile();
+                return lambda;
             }
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

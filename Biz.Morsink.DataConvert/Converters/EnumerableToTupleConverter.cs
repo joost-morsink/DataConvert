@@ -8,6 +8,8 @@ using Et = System.Linq.Expressions.ExpressionType;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
 using static Biz.Morsink.DataConvert.Helpers.Tuples;
 using System.Collections;
+using System.Linq.Expressions;
+using Biz.Morsink.DataConvert.Helpers;
 
 namespace Biz.Morsink.DataConvert.Converters
 {
@@ -23,10 +25,12 @@ namespace Biz.Morsink.DataConvert.Converters
         public static EnumerableToTupleConverter Instance { get; } = new EnumerableToTupleConverter();
         public IDataConverter Ref { get; set; }
 
+        public bool SupportsLambda => true;
+
         public bool CanConvert(Type from, Type to)
             => from != typeof(string) && getGetEnumeratorMethod(from) != null && TupleArity(to) >= 0;
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             return createForList(from, to)
                 ?? createForCollection(from, to)
@@ -54,14 +58,14 @@ namespace Biz.Morsink.DataConvert.Converters
                 return null;
         }
 
-        private Delegate createDefault(Type from, Type to)
+        private LambdaExpression createDefault(Type from, Type to)
         {
             var toParameters = to.GetTypeInfo().GenericTypeArguments;
             var input = Ex.Parameter(from, "input");
             var getEnumerator = getGetEnumeratorMethod(from);
             var enumerator = Ex.Parameter(getEnumerator.ReturnType, "enumerator");
             var eType = getEnumerator.ReturnType.GetTypeInfo().GetDeclaredProperty(nameof(IEnumerator.Current)).PropertyType;
-            var converters = toParameters.Select(p => Ref.GetConverter(eType, p)).ToArray();
+            var converters = toParameters.Select(p => Ref.GetLambda(eType, p)).ToArray();
 
             var res = toParameters.Select(p => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p))).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
@@ -75,10 +79,10 @@ namespace Biz.Morsink.DataConvert.Converters
                 Ex.Label(end, Result(to, Ex.Call(Creator(to), res.Select(r => Ex.Property(r, nameof(IConversionResult.Result)))))));
 
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
 
-        private Delegate createForCollection(Type from, Type to)
+        private LambdaExpression createForCollection(Type from, Type to)
         {
             var cType = (from i in @from.GetTypeInfo().ImplementedInterfaces.Concat(new[] { @from })
                          where i.GetTypeInfo().IsInterface 
@@ -92,7 +96,7 @@ namespace Biz.Morsink.DataConvert.Converters
             var getEnumerator = getGetEnumeratorMethod(from);
             var enumerator = Ex.Parameter(getEnumerator.ReturnType, "enumerator");
             var eType = getEnumerator.ReturnType.GetTypeInfo().GetDeclaredProperty(nameof(IEnumerator.Current)).PropertyType;
-            var converters = toParameters.Select(p => Ref.GetConverter(eType, p)).ToArray();
+            var converters = toParameters.Select(p => Ref.GetLambda(eType, p)).ToArray();
 
             var res = toParameters.Select(p => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p))).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
@@ -112,27 +116,24 @@ namespace Biz.Morsink.DataConvert.Converters
                 Ex.Label(end, Result(to, Ex.Call(Creator(to), res.Select(r => Ex.Property(r, nameof(IConversionResult.Result)))))));
 
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
 
-        private static Ex enumeratorConversion(Type to, Ex enumerator, Type eType, Delegate[] converters, Ex[] res, System.Linq.Expressions.LabelTarget end)
+        private static Ex enumeratorConversion(Type to, Ex enumerator, Type eType, LambdaExpression[] converters, Ex[] res, System.Linq.Expressions.LabelTarget end)
         {
             return Ex.Block(res.Zip(converters, (r, con) =>
-                    Ex.Block(
+                   Ex.Block(
                         Ex.IfThenElse(
                             enumerator.Type.GetTypeInfo().GetDeclaredMethod(nameof(IEnumerator.MoveNext)) == null
                                 ? Ex.Call(Ex.Convert(enumerator, typeof(IEnumerator)), nameof(IEnumerator.MoveNext), Type.EmptyTypes)
                                 : Ex.Call(enumerator, enumerator.Type.GetTypeInfo().GetDeclaredMethod(nameof(IEnumerator.MoveNext))),
-                            Ex.Assign(r,
-                                Ex.Invoke(
-                                    Ex.Constant(con, typeof(Func<,>).MakeGenericType(eType, r.Type)),
-                                    Ex.Property(enumerator, nameof(IEnumerator.Current)))),
+                            Ex.Assign(r, con.ApplyTo(Ex.Property(enumerator, nameof(IEnumerator.Current)))),
                             Ex.Goto(end, NoResult(to))),
                         Ex.IfThen(Ex.Not(Ex.Property(r, nameof(IConversionResult.IsSuccessful))),
                             Ex.Goto(end, NoResult(to))))));
         }
 
-        private Delegate createForList(Type from, Type to)
+        private LambdaExpression createForList(Type from, Type to)
         {
             var cType = (from i in @from.GetTypeInfo().ImplementedInterfaces.Concat(new[] { @from })
                          where i.GetTypeInfo().IsInterface
@@ -145,15 +146,14 @@ namespace Biz.Morsink.DataConvert.Converters
             var count = typeof(IReadOnlyCollection<>).MakeGenericType(cType).GetTypeInfo().GetDeclaredProperty(nameof(IReadOnlyCollection<object>.Count));
             var toParameters = to.GetTypeInfo().GenericTypeArguments;
             var input = Ex.Parameter(from, "input");
-            var converters = toParameters.Select(p => Ref.GetConverter(cType, p)).ToArray();
+            var converters = toParameters.Select(p => Ref.GetLambda(cType, p)).ToArray();
             var res = toParameters.Select(p => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p))).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
 
             var conversion = Ex.Block(converters.Select((c, i) =>
                 Ex.Block(
                     Ex.Assign(res[i],
-                        Ex.Invoke(Ex.Constant(c, typeof(Func<,>).MakeGenericType(cType, typeof(ConversionResult<>).MakeGenericType(toParameters[i]))),
-                            Ex.MakeIndex(input, indexer, new[] { Ex.Constant(i) }))),
+                        c.ApplyTo(Ex.MakeIndex(input, indexer, new[] { Ex.Constant(i) }))),
                     Ex.IfThen(Ex.Not(Ex.Property(res[i], nameof(IConversionResult.IsSuccessful))),
                         Ex.Goto(end, NoResult(to))))));
             var block = Ex.Block(res,
@@ -165,9 +165,9 @@ namespace Biz.Morsink.DataConvert.Converters
                 conversion,
                 Ex.Label(end, Result(to, Ex.Call(Creator(to), res.Select(r => Ex.Property(r, nameof(IConversionResult.Result)))))));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
-
-
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

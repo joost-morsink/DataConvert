@@ -24,6 +24,8 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public IFormatProvider FormatProvider { get; }
 
+        public bool SupportsLambda => true;
+
         /// <summary>
         /// Finds the 'best' conversion method on the Convert class.
         /// </summary>
@@ -53,7 +55,7 @@ namespace Biz.Morsink.DataConvert.Converters
         public bool CanConvert(Type from, Type to)
             => ConvertMethod(from, to) != null;
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var input = Ex.Parameter(from, "input");
             var convert = ConvertMethod(from, to);
@@ -62,7 +64,9 @@ namespace Biz.Morsink.DataConvert.Converters
                 Result(to, Ex.Call(convert, convert.GetParameters().Select(pi => getParameter(pi, input)))),
                 Ex.Catch(exception, NoResult(to)));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

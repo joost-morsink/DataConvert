@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Biz.Morsink.DataConvert
@@ -23,5 +24,12 @@ namespace Biz.Morsink.DataConvert
         /// <param name="to">The type that is converted to</param>
         /// <returns>A Func&gt;object, IConversionResult&lt; that <b>will cast</b> the input object to the type 'from'.</returns>
         Func<object, IConversionResult> GetGeneralConverter(Type from, Type to);
+        /// <summary>
+        /// Gets a lambda expression that can try conversion from 'from' to 'to'.
+        /// </summary>
+        /// <param name="from">The type that is converted from.</param>
+        /// <param name="to">The type that is converted to.</param>
+        /// <returns>A LambdaExpression that contains the conversion implementation.</returns>
+        LambdaExpression GetLambda(Type from, Type to);
     }
 }

@@ -45,6 +45,8 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public bool IgnoreCase { get; }
 
+        public bool SupportsLambda => true;
+
         private MethodInfo getTryParse(Type t)
             => tryParse.MakeGenericMethod(t);
         private Ex getParameter(ParameterInfo pi, ParameterExpression input, ParameterExpression output)
@@ -58,7 +60,7 @@ namespace Biz.Morsink.DataConvert.Converters
             else
                 throw new ArgumentException("Unknown parameter");
         }
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var input = Ex.Parameter(from, "input");
             var result = Ex.Parameter(to, "result");
@@ -67,7 +69,10 @@ namespace Biz.Morsink.DataConvert.Converters
                 Ex.Condition(Ex.Call(m, m.GetParameters().Select(pi => getParameter(pi, input, result))),
                     Result(to, result),
                     NoResult(to)));
-            return Ex.Lambda(block, input).Compile();
+            return Ex.Lambda(block, input);
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

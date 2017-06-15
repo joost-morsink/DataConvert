@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Ex = System.Linq.Expressions.Expression;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
+using System.Linq.Expressions;
+
 namespace Biz.Morsink.DataConvert.Converters
 {
     /// <summary>
@@ -17,16 +19,21 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public static EnumToNumericConverter Instance { get; } = new EnumToNumericConverter();
 
+        public bool SupportsLambda => true;
+
         public bool CanConvert(Type from, Type to)
             => from.GetTypeInfo().IsEnum
             && (to == typeof(int) || to == typeof(long));
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             var input = Ex.Parameter(from, "input");
             var block = Result(to, Ex.Convert(input, to));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }

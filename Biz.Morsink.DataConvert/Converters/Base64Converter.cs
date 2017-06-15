@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Biz.Morsink.DataConvert.Converters
@@ -13,6 +14,8 @@ namespace Biz.Morsink.DataConvert.Converters
         /// Gets a singleton Base64Converter.
         /// </summary>
         public static Base64Converter Instance { get; } = new Base64Converter();
+
+        public bool SupportsLambda => false;
 
         public bool CanConvert(Type from, Type to)
             => from == typeof(string) && to == typeof(byte[])
@@ -35,5 +38,8 @@ namespace Biz.Morsink.DataConvert.Converters
             else
                 return new Func<byte[], ConversionResult<string>>(input => new ConversionResult<string>(Convert.ToBase64String(input)));
         }
+
+        public LambdaExpression CreateLambda(Type from, Type to)
+            => null;
     }
 }

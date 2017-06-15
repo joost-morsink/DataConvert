@@ -6,6 +6,8 @@ using Ex = System.Linq.Expressions.Expression;
 using Et = System.Linq.Expressions.ExpressionType;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
 using System.Reflection;
+using System.Linq.Expressions;
+using Biz.Morsink.DataConvert.Helpers;
 
 namespace Biz.Morsink.DataConvert.Converters
 {
@@ -22,6 +24,8 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public char[] Separators { get; }
 
+        public bool SupportsLambda => true;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -33,49 +37,45 @@ namespace Biz.Morsink.DataConvert.Converters
         public bool CanConvert(Type from, Type to)
             => from == typeof(string) || from != typeof(string) && to == typeof(string);
 
-        public Delegate Create(Type from, Type to)
+        public LambdaExpression CreateLambda(Type from, Type to)
         {
             if (from == typeof(string))
             {
-                return fromStringDelegate(to);
+                return fromStringLambda(to);
             }
             else
-                return toStringDelegate(from);
+                return toStringLambda(from);
         }
 
-        private Delegate fromStringDelegate(Type to)
+        private LambdaExpression fromStringLambda(Type to)
         {
             var input = Ex.Parameter(typeof(string), "input");
             var split = Ex.Parameter(typeof(string[]), "split");
-
+            var converter = Ref.GetLambda(typeof(string[]), to);
             var block = Ex.Condition(Ex.MakeBinary(Et.Equal, input, Ex.Default(typeof(string))),
                     NoResult(to),
                     Ex.Block(new[] { split },
                         Ex.Assign(split, Ex.Call(input, nameof(string.Split), Type.EmptyTypes, Ex.Constant(Separators))),
                         Ex.Condition(Ex.MakeBinary(Et.Equal, Ex.Property(split, nameof(Array.Length)), Ex.Constant(1)),
                             NoResult(to),
-                            Ex.Invoke(
-                                Ex.Convert(
-                                    Ex.Call(Ex.Constant(Ref), nameof(IDataConverter.GetConverter), Type.EmptyTypes, Ex.Constant(typeof(string[])), Ex.Constant(to)),
-                                    typeof(Func<,>).MakeGenericType(typeof(string[]), typeof(ConversionResult<>).MakeGenericType(to))),
-                                split))));
+                            converter.ApplyTo(split))));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
-        private Delegate toStringDelegate(Type from)
+        private LambdaExpression toStringLambda(Type from)
         {
             if (from == typeof(string[]))
-                return fromStringArrayDelegate(from);
+                return fromStringArrayLambda(from);
             else if (typeof(object[]).GetTypeInfo().IsAssignableFrom(from.GetTypeInfo()))
-                return fromArrayDelegate(from);
+                return fromArrayLambda(from);
             else if (from.GetTypeInfo().GenericTypeArguments.Length == 1 && from.GetTypeInfo().GetGenericTypeDefinition() == typeof(IEnumerable<>)
                 || from.GetTypeInfo().ImplementedInterfaces.Any(i => i.GenericTypeArguments.Length == 1 && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
-                return fromEnumerableDelegate(from);
+                return fromEnumerableLambda(from);
             else
-                return fromConvertDelegate(from);
+                return fromConvertLambda(from);
         }
 
-        private Delegate fromStringArrayDelegate(Type from)
+        private LambdaExpression fromStringArrayLambda(Type from)
         {
             var input = Ex.Parameter(from, "input");
             var result = Ex.Call((from mi in typeof(string).GetTypeInfo().GetDeclaredMethods(nameof(string.Join))
@@ -85,7 +85,7 @@ namespace Biz.Morsink.DataConvert.Converters
                             Ex.Constant(Separators[0].ToString()), input);
             var block = conditional(from, input, result);
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
 
         private static Ex conditional(Type from, Ex input, Ex result)
@@ -98,7 +98,7 @@ namespace Biz.Morsink.DataConvert.Converters
                             Result(typeof(string), result));
         }
 
-        private Delegate fromArrayDelegate(Type from)
+        private LambdaExpression fromArrayLambda(Type from)
         {
             var input = Ex.Parameter(from, "input");
             var result = Ex.Call((from mi in typeof(string).GetTypeInfo().GetDeclaredMethods(nameof(string.Join))
@@ -108,9 +108,9 @@ namespace Biz.Morsink.DataConvert.Converters
                             Ex.Constant(Separators[0].ToString()), input);
             var block = conditional(from, Ex.Convert(input, typeof(object[])), result);
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
-        private Delegate fromEnumerableDelegate(Type from)
+        private LambdaExpression fromEnumerableLambda(Type from)
         {
             var input = Ex.Parameter(from, "input");
             var eType = from.GetTypeInfo().ImplementedInterfaces
@@ -135,21 +135,20 @@ namespace Biz.Morsink.DataConvert.Converters
                 NoResult(typeof(string)),
                 result);
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
-        private Delegate fromConvertDelegate(Type from)
+        private LambdaExpression fromConvertLambda(Type from)
         {
             var input = Ex.Parameter(from, "input");
             var converted = Ex.Parameter(typeof(ConversionResult<string[]>), "converted");
-            var converter = Ref.GetConverter(from, typeof(string[]));
+            var converter = Ref.GetLambda(from, typeof(string[]));
             var result = Ex.Call((from mi in typeof(string).GetTypeInfo().GetDeclaredMethods(nameof(string.Join))
                                   let par = mi.GetParameters()
                                   where par.Length == 2 && par[0].ParameterType == typeof(string) && par[1].ParameterType == typeof(string[])
                                   select mi).Single(),
                 Ex.Constant(Separators[0].ToString()), Ex.Property(converted, nameof(IConversionResult.Result)));
             var block = Ex.Block(new[] { converted },
-                Ex.Assign(converted,
-                    Ex.Invoke(Ex.Constant(converter, typeof(Func<,>).MakeGenericType(from, typeof(ConversionResult<string[]>))), input)),
+                Ex.Assign(converted,converter.ApplyTo(input)),
                 Ex.Condition(
                     Ex.MakeBinary(Et.AndAlso,
                         Ex.Property(converted, nameof(IConversionResult.IsSuccessful)),
@@ -159,7 +158,10 @@ namespace Biz.Morsink.DataConvert.Converters
                     Result(typeof(string), result),
                     NoResult(typeof(string))));
             var lambda = Ex.Lambda(block, input);
-            return lambda.Compile();
+            return lambda;
         }
+
+        public Delegate Create(Type from, Type to)
+            => CreateLambda(from, to).Compile();
     }
 }
