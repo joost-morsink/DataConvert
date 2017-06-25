@@ -38,7 +38,7 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
             var c = converter.GetConverter<string, int?>();
             var ic = CultureInfo.InvariantCulture;
             return Measure.Create("string to int? conversion")
-                .ReferenceAction(() => { var _ = (int?)Convert.ToInt32("42"); }) 
+                .ReferenceAction(() => { var _ = (int?)Convert.ToInt32("42"); })
                 .MeasurementAction(() => { var _ = c("42").Result; });
         }
         private static Measure DynamicStringToInt(IDataConverter converter)
@@ -84,6 +84,25 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
             return Measure.Create("DateTime to string conversion")
                 .ReferenceAction(() => { var _ = DateTime.TryParse("2017-04-20T08:51:00Z", null, DateTimeStyles.RoundtripKind, out var res); })
                 .MeasurementAction(() => { var _ = c("2017-04-20T08:51:00Z").Result; });
+        }
+        private static Measure Base64Int(IDataConverter converter)
+        {
+            var b64i = new Converters.Base64IntegerConverter();
+            var cf = b64i.Create(typeof(int), typeof(string)) as Func<int, ConversionResult<string>>;
+            var ct = b64i.Create(typeof(string), typeof(int)) as Func<string, ConversionResult<int>>;
+            return Measure.Create("Base64 <-> int conversions (unfair: no comparable algorithm in BCL)")
+                .ReferenceAction(() =>
+                {
+                    var bs = BitConverter.GetBytes(-1234567);
+                    var str = Convert.ToBase64String(bs);
+                    var res = Convert.FromBase64String(str);
+                })
+                .MeasurementAction(() =>
+                {
+                    var str = cf(-1234567);
+                    var back = ct(str.Result);
+                });
+
         }
         private static Measure ParseFailure(IDataConverter converter)
         {
