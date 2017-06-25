@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace Biz.Morsink.DataConvert.PerformanceTest
 {
+    /// <summary>
+    /// Entry point class for a Console application measuring some performance characteristics of the DataConvert library.
+    /// </summary>
     static class Program
     {
         static void ToConsole(this object o)

@@ -5,9 +5,21 @@ using System.Text;
 
 namespace Biz.Morsink.DataConvert.PerformanceTest
 {
+    /// <summary>
+    /// Helper struct to perform a relative measurement between two Actions.
+    /// The two actions are called the ReferenceAction and the MeasureAction, performance is measured of the MeasureAction relative to the ReferenceAction.
+    /// </summary>
     public struct Measure
     {
+        /// <summary>
+        /// Factor between Stopwatch Tick duration and TimeSpan Tick duration. 
+        /// These need not be the same on all platforms.
+        /// </summary>
         public static readonly double TICKFACTOR;
+        /// <summary>
+        /// Measurement of an empty loop to cancel out the looping and Action calling time.
+        /// Only looping is measured.
+        /// </summary>
         public static readonly double LOOP_AND_CALL_OVERHEAD;
         static Measure()
         {
@@ -29,6 +41,11 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
         private readonly Action _reference;
         private readonly Action _measurement;
 
+        /// <summary>
+        /// Creates a Measure.
+        /// </summary>
+        /// <param name="name">The name for the Measure.</param>
+        /// <returns>A new Measure.</returns>
         public static Measure Create(string name)
             => new Measure(name, new TimeSpan(0, 0, 1), true, null, null);
         private Measure(string name, TimeSpan span, bool initial, Action referenceAction, Action measurementAction)
@@ -39,14 +56,30 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
             _reference = referenceAction;
             _measurement = measurementAction;
         }
+        /// <summary>
+        /// Sets the time to spend on measuring an Action.
+        /// </summary>
         public Measure TimeSpan(TimeSpan span)
             => new Measure(_name, span, _initial, _reference, _measurement);
+        /// <summary>
+        /// Does nothing yet.
+        /// </summary>
         public Measure InitialRun(bool initial = true)
             => new Measure(_name, _span, initial, _reference, _measurement);
+        /// <summary>
+        /// Sets the ReferenceAction
+        /// </summary>
         public Measure ReferenceAction(Action action)
             => new Measure(_name, _span, _initial, action, _measurement);
+        /// <summary>
+        /// Sets the MeasurementAction
+        /// </summary>
         public Measure MeasurementAction(Action action)
             => new Measure(_name, _span, _initial, _reference, action);
+        /// <summary>
+        /// Executes the measurement configured in this Measure.
+        /// </summary>
+        /// <returns>A MeasurementResult</returns>
         public MeasurementResult Execute()
         {
             var reference = MeasureAction(_span, _reference);

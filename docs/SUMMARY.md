@@ -24,3 +24,4 @@
   * [TupleConverter](reference/tuple.md)
   * [TupleToArrayConverter](reference/tuple2arr.md)
   * [Default pipeline](reference/pipeline.md)
+* [Performance](perf/README.md)
