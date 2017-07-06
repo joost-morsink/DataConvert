@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>DataConvert</Title>
-    <VersionPrefix>0.2.0</VersionPrefix>
+    <VersionPrefix>0.3.0</VersionPrefix>
     <Authors>Joost W. Morsink</Authors>
     <Company>Morsink Software</Company>
     <PackageId>Biz.Morsink.DataConvert</PackageId>
