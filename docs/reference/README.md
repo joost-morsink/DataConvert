@@ -5,6 +5,7 @@ The following `IConverter` components have been developed:
 * [Base64Converter](base64.md)
 * [Base64IntegerConverter](base6int.md)
 * [DefaultConvertConverter](default.md)
+* [DictionaryObjectConverter](dictObj.md)
 * [DynamicConverter](dynamic.md)
 * [EnumerableToTupleConverter](enumerable2tuple.md)
 * [EnumParseConverter](enumParse.md)
