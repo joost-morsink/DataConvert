@@ -7,6 +7,8 @@ The dataclasses need to conform to one of the following prescribed structure:
 
 This converter cannot be configured and has no parameters.
 
-### Future work
-The current version requires all properties/parameters to be present in the input dictionary. 
-A future version could relax this constraint in some way.
+### Success and Failure
+For types that support the 'setter-pattern' all the properties are optional, but if a value is present and the value cannot be converted to the property type, the whole conversion fails.
+
+For types that support the 'constructor-pattern', parameters without a default value are required.
+If a value is present for either a required or an optional parameter and the value cannot be converted to the parameter type, the entire conversion fails.

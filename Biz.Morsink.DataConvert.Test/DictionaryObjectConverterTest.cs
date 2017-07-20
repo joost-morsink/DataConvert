@@ -13,7 +13,7 @@ namespace Biz.Morsink.DataConvert.Test
 
         private class PersonC
         {
-            public PersonC(string firstName, string lastName, int age)
+            public PersonC(string firstName, string lastName, int age = -1)
             {
                 FirstName = firstName;
                 LastName = lastName;
@@ -91,16 +91,39 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(converter.Convert(d).TryTo(out PersonS q), "Unparseable int should fail entire conversion for property setter types");
         }
         [TestMethod]
+        public void DictObj_HappyKey()
+        {
+            var d = new Dictionary<string, string>
+            {
+                ["FirstName"] = "Joost",
+                ["LastNames"] = "Morsink",
+                ["Age"] = "37"
+            };
+            Assert.IsTrue(converter.Convert(d).TryTo(out PersonS q), "Non-existent key should be ignored for property setter types");
+        }
+        [TestMethod]
         public void DictObj_UnhappyKey()
         {
             var d = new Dictionary<string, string>
             {
                 ["FirstName"] = "Joost",
-                ["LastName"] = "Morsink",
-                ["Ages"] = "37"
+                ["LastNames"] = "Morsink",
+                ["Age"] = "37"
             };
             Assert.IsFalse(converter.Convert(d).TryTo(out PersonC p), "Non-existent key should fail entire conversion for parameterized constructor types");
-            Assert.IsFalse(converter.Convert(d).TryTo(out PersonS q), "Non-existent key should fail entire conversion for property setter types");
+        }
+        [TestMethod]
+        public void DictObj_DefaultParam()
+        {
+            var d = new Dictionary<string, string>
+            {
+                ["FirstName"] = "Joost",
+                ["LastName"] = "Morsink"
+            };
+            Assert.IsTrue(converter.Convert(d).TryTo(out PersonC p));
+            Assert.AreEqual("Joost", p.FirstName);
+            Assert.AreEqual("Morsink", p.LastName);
+            Assert.AreEqual(-1, p.Age);
         }
     }
 }

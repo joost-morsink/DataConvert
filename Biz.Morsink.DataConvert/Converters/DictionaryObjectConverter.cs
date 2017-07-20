@@ -7,10 +7,12 @@ using System.Reflection;
 using System.Text;
 using Ex = System.Linq.Expressions.Expression;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
+using System.Runtime.InteropServices;
+
 namespace Biz.Morsink.DataConvert.Converters
 {
     /// <summary>
-    /// The DictionaryObjectConverter converts back and forth between Dictionary&lt;string, V&gt;, IDictionary&lt;string, V&gt; and data class supporting either the getter/setter pattern or the readonly properties with a constructor parameter for each property.
+    /// The DictionaryObjectConverter converts back and forth between Dictionary&lt;string, V&gt;, IDictionary&lt;string, V&gt; and data class supporting either the getter/setter pattern or the readonly properties with a constructor parameter for each property pattern.
     /// </summary>
     public class DictionaryObjectConverter : IConverter, IDataConverterRef
     {
@@ -61,14 +63,14 @@ namespace Biz.Morsink.DataConvert.Converters
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to));
             var block = Ex.Block(new[] { tmp, res },
                 Ex.Assign(res, Ex.New(GetParameterlessConstructor(dictType))),
-                Ex.Block(getters.Zip(converters, (g,c) => new { g, c })
-                    .Select(x => 
+                Ex.Block(getters.Zip(converters, (g, c) => new { g, c })
+                    .Select(x =>
                         Ex.Block(
-                            Ex.Assign(tmp, x.c.ApplyTo(Ex.Property(input,x.g))),
+                            Ex.Assign(tmp, x.c.ApplyTo(Ex.Property(input, x.g))),
                             Ex.IfThenElse(Ex.Property(tmp, nameof(IConversionResult.IsSuccessful)),
-                                Ex.Call(res,add,Ex.Constant(x.g.Name), Ex.Property(tmp, nameof(IConversionResult.Result))),
+                                Ex.Call(res, add, Ex.Constant(x.g.Name), Ex.Property(tmp, nameof(IConversionResult.Result))),
                                 Ex.Goto(end, NoResult(to)))))),
-                Ex.Label(end, Result(to,res)));
+                Ex.Label(end, Result(to, res)));
             return Ex.Lambda(block, input);
         }
 
@@ -83,22 +85,27 @@ namespace Biz.Morsink.DataConvert.Converters
             var ctor = GetParameterlessConstructor(to);
             var setters = GetWritablePropertiesForType(to);
             var res = Ex.Parameter(to, "res");
-            var converters = setters.Select(p => Ref.GetLambda(valueType, p.PropertyType)).ToArray();
-            var pars = setters.Select((p, i) => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p.PropertyType), p.Name)).ToArray();
+            var pars = setters.Select((p, i) => new
+            {
+                Converter = Ref.GetLambda(valueType, p.PropertyType),
+                Var = Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p.PropertyType), p.Name)
+            }).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
-            var block = Ex.Block(new[] { tmp, res }.Concat(pars),
+            var block = Ex.Block(new[] { tmp, res }.Concat(pars.Select(x => x.Var)),
                 Ex.Assign(res, Ex.New(ctor)),
-                Ex.Block(converters.Zip(pars, (c, p) => new { c, p })
+                Ex.Block(pars
                     .Select(x =>
                         Ex.Block(
-                            Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(x.p.Name), tmp)),
-                                Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(ToCamelCase(x.p.Name)), tmp)),
-                                    Ex.Goto(end, NoResult(to)))),
-                            Ex.Assign(x.p, x.c.ApplyTo(tmp)),
-                            Ex.IfThenElse(Ex.Property(x.p, nameof(IConversionResult.IsSuccessful)),
-                                Ex.Assign(Ex.Property(res, x.p.Name), Ex.Property(x.p, nameof(IConversionResult.Result))),
-                                Ex.Goto(end, NoResult(to)))))),
-                    Ex.Label(end, Result(to, res)));
+                            Ex.IfThen(
+                                Ex.MakeBinary(ExpressionType.OrElse,
+                                    Ex.Call(input, tryGet, Ex.Constant(x.Var.Name), tmp),
+                                    Ex.Call(input, tryGet, Ex.Constant(ToCamelCase(x.Var.Name)), tmp)),
+                                Ex.Block(
+                                    Ex.Assign(x.Var, x.Converter.ApplyTo(tmp)),
+                                    Ex.IfThenElse(Ex.Property(x.Var, nameof(IConversionResult.IsSuccessful)),
+                                        Ex.Assign(Ex.Property(res, x.Var.Name), Ex.Property(x.Var, nameof(IConversionResult.Result))),
+                                        Ex.Goto(end, NoResult(to)))))))),
+                Ex.Label(end, Result(to, res)));
             return Ex.Lambda(block, input);
         }
 
@@ -111,20 +118,37 @@ namespace Biz.Morsink.DataConvert.Converters
             var input = Ex.Parameter(from, "input");
             var ctor = GetConstructorForType(to);
             var tmp = Ex.Parameter(valueType, "tmp");
-            var converters = ctor.GetParameters().Select(p => Ref.GetLambda(valueType, p.ParameterType)).ToArray();
-            var pars = ctor.GetParameters().Select((p, i) => Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p.ParameterType), p.Name)).ToArray();
+            var pars = ctor.GetParameters().Select((p, i) => new
+            {
+                Converter = Ref.GetLambda(valueType, p.ParameterType),
+                Var = Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p.ParameterType), p.Name),
+                Type = p.ParameterType,
+                Optional = p.GetCustomAttributes<OptionalAttribute>().Any(),
+                Default = p.HasDefaultValue ? p.DefaultValue : p.ParameterType.GetTypeInfo().IsValueType ? Activator.CreateInstance(p.ParameterType) : null
+            }).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
-            var block = Ex.Block(pars,
-                Ex.Block(new[] { tmp }, converters.Zip(pars, (c, p) => new { c, p })
+            var block = Ex.Block(pars.Select(x => x.Var),
+                Ex.Block(new[] { tmp }, pars
                     .Select(x =>
-                        Ex.Block(
-                            Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(x.p.Name), tmp)),
-                                Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(ToPascalCase(x.p.Name)), tmp)),
+                        x.Optional
+                        ? Ex.Block(
+                            Ex.IfThenElse(
+                                Ex.MakeBinary(ExpressionType.OrElse,
+                                    Ex.Call(input, tryGet, Ex.Constant(x.Var.Name), tmp),
+                                    Ex.Call(input, tryGet, Ex.Constant(ToPascalCase(x.Var.Name)), tmp)),
+                                Ex.Block(
+                                    Ex.Assign(x.Var, x.Converter.ApplyTo(tmp)),
+                                    Ex.IfThen(Ex.Not(Ex.Property(x.Var, nameof(IConversionResult.IsSuccessful))),
+                                        Ex.Goto(end, NoResult(to)))),
+                                Ex.Assign(x.Var, Result(x.Type, Ex.Constant(x.Default, x.Type)))))
+                        : Ex.Block(
+                            Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(x.Var.Name), tmp)),
+                                Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(ToPascalCase(x.Var.Name)), tmp)),
                                     Ex.Goto(end, NoResult(to)))),
-                            Ex.Assign(x.p, x.c.ApplyTo(tmp)),
-                            Ex.IfThen(Ex.Not(Ex.Property(x.p, nameof(IConversionResult.IsSuccessful))),
+                            Ex.Assign(x.Var, x.Converter.ApplyTo(tmp)),
+                            Ex.IfThen(Ex.Not(Ex.Property(x.Var, nameof(IConversionResult.IsSuccessful))),
                                 Ex.Goto(end, NoResult(to)))))),
-                    Ex.Label(end, Result(to, Ex.New(ctor, pars.Select(p => Ex.Property(p, nameof(IConversionResult.Result)))))));
+                    Ex.Label(end, Result(to, Ex.New(ctor, pars.Select(p => Ex.Property(p.Var, nameof(IConversionResult.Result)))))));
             return Ex.Lambda(block, input);
         }
 
