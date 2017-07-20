@@ -12,10 +12,116 @@ using System.Runtime.InteropServices;
 namespace Biz.Morsink.DataConvert.Converters
 {
     /// <summary>
-    /// The DictionaryObjectConverter converts back and forth between Dictionary&lt;string, V&gt;, IDictionary&lt;string, V&gt; and data class supporting either the getter/setter pattern or the readonly properties with a constructor parameter for each property pattern.
+    /// The RecordConverter converts back and forth between abstract 'records' and data class supporting either the getter/setter pattern or the readonly properties with a constructor parameter for each property pattern.
     /// </summary>
-    public class DictionaryObjectConverter : IConverter, IDataConverterRef
+    public class RecordConverter : IConverter, IDataConverterRef
     {
+        #region Helper types
+        /// <summary>
+        /// Interface for creating a 'Record' adapter for certain types.
+        /// </summary>
+        public interface IRecordCreator
+        {
+            /// <summary>
+            /// Determines if the type is compatible.
+            /// </summary>
+            /// <param name="t">The type to check.</param>
+            /// <returns>true if the type is supported for creating IRecord&lt;T&gt; instances for</returns>
+            bool IsTypeCompatible(Type t);
+            /// <summary>
+            /// Gets the type for the generic parameter for the IRecord interface for a certain type.
+            /// Only types that have IsTypeCompatible(t) == true.
+            /// </summary>
+            /// <param name="t">The type to check the value type for.</param>
+            /// <returns>The valuetype of the record.</returns>
+            Type GetValueType(Type t);
+            /// <summary>
+            /// Creates a LambdaExpression which creates an IRecord&lt;T&gt; instance based on some object.
+            /// </summary>
+            /// <param name="t">The type to create an IRecord&ltT&gt; for.</param>
+            /// <returns>A LambdaExpression that can create a new IRecord&ltT&gt; instance.</returns>
+            LambdaExpression Creator(Type t);
+        }
+        /// <summary>
+        /// Interface for getting and setting value in a string keyed record structure.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public interface IRecord<T>
+        {
+            /// <summary>
+            /// Tries to get the value corresponding to some key.
+            /// </summary>
+            /// <param name="key">The key to get the value for.</param>
+            /// <param name="value">Outputs the value that corresponds to the key.</param>
+            /// <returns>True if the lookup succeeded, false otherwise.</returns>
+            bool TryGetValue(string key, out T value);
+            /// <summary>
+            /// Sets a value for a certain key.
+            /// </summary>
+            /// <param name="key">The key to set the value for.</param>
+            /// <param name="value">The value to set.</param>
+            void SetValue(string key, T value);
+        }
+        /// <summary>
+        /// Implementation of IRecordCreator for (I)Dictionary&lt;string, T&gt;.
+        /// </summary>
+        public class DictionaryRecordCreator : IRecordCreator
+        {
+            /// <summary>
+            /// Singleton instance.
+            /// </summary>
+            public static DictionaryRecordCreator Instance { get; } = new DictionaryRecordCreator();
+
+            public LambdaExpression Creator(Type t)
+            {
+                var valueType = GetValueType(t);
+                var inner = Ex.Parameter(typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType), "inner");
+                return Ex.Lambda(
+                    Ex.New(
+                        typeof(DictionaryRecord<>).MakeGenericType(valueType).GetTypeInfo().DeclaredConstructors.First(),
+                        inner), inner);
+            }
+
+            public Type GetValueType(Type t)
+                => (from itf in t.GetTypeInfo().ImplementedInterfaces.Concat(new[] { t })
+                    let ga = itf.GenericTypeArguments
+                    where ga.Length == 2 && ga[0] == typeof(string) && itf.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                    select ga[1]).FirstOrDefault();
+
+            public bool IsTypeCompatible(Type t)
+            {
+                var ti = t.GetTypeInfo();
+                return ti.GenericTypeArguments.Length == 2
+                    && (ti.GetGenericTypeDefinition() == typeof(IDictionary<,>) || ti.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                    && GetValueType(t) != null;
+            }
+        }
+        /// <summary>
+        /// Implementation of IRecord&lt;T&gt; for (I)Dictionary&lt;string, T&gt;.
+        /// </summary>
+        /// <typeparam name="T">The valuetype of the record.</typeparam>
+        public class DictionaryRecord<T> : IRecord<T>
+        {
+            private readonly IDictionary<string, T> inner;
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="inner">The dictionary instance to expose the IRecord&lt;T&gt; interface for.</param>
+            public DictionaryRecord(IDictionary<string, T> inner)
+            {
+                this.inner = inner;
+            }
+
+            public void SetValue(string key, T value)
+                => inner[key] = value;
+
+            public bool TryGetValue(string key, out T value)
+                => inner.TryGetValue(key, out value);
+        }
+        #endregion
+
+        private readonly IRecordCreator recordCreator;
+
         // TODO: Implement case sensitive/insensitive keys for the dictionary type
         // public static DictionaryObjectConverter CaseSensitive => new DictionaryObjectConverter();
         // public static DictionaryObjectConverter CaseInsensitive = new DictionaryObjectConverter(CaseInsensitiveEqualityComparer.Instance);
@@ -24,18 +130,31 @@ namespace Biz.Morsink.DataConvert.Converters
         //     KeyComparer = keyComparer ?? EqualityComparer<string>.Default; ;
         // }
         // public IEqualityComparer<string> KeyComparer { get; }
+        /// <summary>
+        /// Creates a RecordConverter for dictionary types.
+        /// </summary>
+        /// <returns></returns>
+        public static RecordConverter ForDictionaries() => new RecordConverter(DictionaryRecordCreator.Instance);
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="recordCreator">A IRecordCreator instance that is to be used when converting.</param>
+        public RecordConverter(IRecordCreator recordCreator)
+        {
+            this.recordCreator = recordCreator;
+        }
 
         public bool SupportsLambda => true;
 
         public IDataConverter Ref { get; set; }
 
         public bool CanConvert(Type from, Type to)
-            => IsCompatibleDictionaryType(from) && IsCompatibleObjectType(to)
-            || IsCompatibleObjectType(from) && IsCompatibleDictionaryType(to);
+            => recordCreator.IsTypeCompatible(from) && IsCompatibleObjectType(to)
+            || IsCompatibleObjectType(from) && recordCreator.IsTypeCompatible(to);
 
         public LambdaExpression CreateLambda(Type from, Type to)
         {
-            if (IsCompatibleDictionaryType(from))
+            if (recordCreator.IsTypeCompatible(from))
             {
                 if (GetConstructorForType(to) != null)
                     return constructionLambda(from, to);
@@ -50,25 +169,27 @@ namespace Biz.Morsink.DataConvert.Converters
 
         private LambdaExpression toDictLambda(Type from, Type to)
         {
-            var valueType = GetDictionaryValueType(to);
-            var dictType = typeof(Dictionary<,>).MakeGenericType(typeof(string), valueType);
-            var add = dictType.GetTypeInfo().GetDeclaredMethod(nameof(Dictionary<string, object>.Add));
+            var valueType = recordCreator.GetValueType(to);
+            var recType = typeof(IRecord<>).MakeGenericType(valueType);
+            var set = recType.GetTypeInfo().GetDeclaredMethod(nameof(IRecord<object>.SetValue));
 
             var input = Ex.Parameter(from, "input");
             var tmp = Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(valueType), "tmp");
-            var res = Ex.Parameter(dictType, "res");
+            var res = Ex.Parameter(to, "res");
+            var rec = Ex.Parameter(recType, "rec");
             var getters = GetReadablePropertiesForType(from);
             var converters = getters.Select(g => Ref.GetLambda(g.PropertyType, valueType));
 
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to));
-            var block = Ex.Block(new[] { tmp, res },
-                Ex.Assign(res, Ex.New(GetParameterlessConstructor(dictType))),
+            var block = Ex.Block(new[] { tmp, res, rec },
+                Ex.Assign(res, Ex.New(GetParameterlessConstructor(to))),
+                Ex.Assign(rec, recordCreator.Creator(to).ApplyTo(res)),
                 Ex.Block(getters.Zip(converters, (g, c) => new { g, c })
                     .Select(x =>
                         Ex.Block(
                             Ex.Assign(tmp, x.c.ApplyTo(Ex.Property(input, x.g))),
                             Ex.IfThenElse(Ex.Property(tmp, nameof(IConversionResult.IsSuccessful)),
-                                Ex.Call(res, add, Ex.Constant(x.g.Name), Ex.Property(tmp, nameof(IConversionResult.Result))),
+                                Ex.Call(rec, set, Ex.Constant(x.g.Name), Ex.Property(tmp, nameof(IConversionResult.Result))),
                                 Ex.Goto(end, NoResult(to)))))),
                 Ex.Label(end, Result(to, res)));
             return Ex.Lambda(block, input);
@@ -76,11 +197,12 @@ namespace Biz.Morsink.DataConvert.Converters
 
         private LambdaExpression setterLambda(Type from, Type to)
         {
-            var valueType = GetDictionaryValueType(from);
-            var dictType = typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType);
-            var tryGet = dictType.GetTypeInfo().GetDeclaredMethod(nameof(IDictionary<string, object>.TryGetValue));
+            var valueType = recordCreator.GetValueType(from);
+            var recType = typeof(IRecord<>).MakeGenericType(valueType);
+            var tryGet = recType.GetTypeInfo().GetDeclaredMethod(nameof(IRecord<object>.TryGetValue));
 
             var input = Ex.Parameter(from, "input");
+            var rec = Ex.Parameter(recType, "rec");
             var tmp = Ex.Parameter(valueType, "tmp");
             var ctor = GetParameterlessConstructor(to);
             var setters = GetWritablePropertiesForType(to);
@@ -91,15 +213,16 @@ namespace Biz.Morsink.DataConvert.Converters
                 Var = Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(p.PropertyType), p.Name)
             }).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
-            var block = Ex.Block(new[] { tmp, res }.Concat(pars.Select(x => x.Var)),
+            var block = Ex.Block(new[] { tmp, res, rec }.Concat(pars.Select(x => x.Var)),
                 Ex.Assign(res, Ex.New(ctor)),
+                Ex.Assign(rec, recordCreator.Creator(from).ApplyTo(input)),
                 Ex.Block(pars
                     .Select(x =>
                         Ex.Block(
                             Ex.IfThen(
                                 Ex.MakeBinary(ExpressionType.OrElse,
-                                    Ex.Call(input, tryGet, Ex.Constant(x.Var.Name), tmp),
-                                    Ex.Call(input, tryGet, Ex.Constant(ToCamelCase(x.Var.Name)), tmp)),
+                                    Ex.Call(rec, tryGet, Ex.Constant(x.Var.Name), tmp),
+                                    Ex.Call(rec, tryGet, Ex.Constant(ToCamelCase(x.Var.Name)), tmp)),
                                 Ex.Block(
                                     Ex.Assign(x.Var, x.Converter.ApplyTo(tmp)),
                                     Ex.IfThenElse(Ex.Property(x.Var, nameof(IConversionResult.IsSuccessful)),
@@ -111,11 +234,12 @@ namespace Biz.Morsink.DataConvert.Converters
 
         private LambdaExpression constructionLambda(Type from, Type to)
         {
-            var valueType = GetDictionaryValueType(from);
-            var dictType = typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType);
-            var tryGet = dictType.GetTypeInfo().GetDeclaredMethod(nameof(IDictionary<string, object>.TryGetValue));
+            var valueType = recordCreator.GetValueType(from);
+            var recType = typeof(IRecord<>).MakeGenericType(valueType);
+            var tryGet = recType.GetTypeInfo().GetDeclaredMethod(nameof(IRecord<object>.TryGetValue));
 
             var input = Ex.Parameter(from, "input");
+            var rec = Ex.Parameter(recType, "rec");
             var ctor = GetConstructorForType(to);
             var tmp = Ex.Parameter(valueType, "tmp");
             var pars = ctor.GetParameters().Select((p, i) => new
@@ -127,23 +251,24 @@ namespace Biz.Morsink.DataConvert.Converters
                 Default = p.HasDefaultValue ? p.DefaultValue : p.ParameterType.GetTypeInfo().IsValueType ? Activator.CreateInstance(p.ParameterType) : null
             }).ToArray();
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to), "end");
-            var block = Ex.Block(pars.Select(x => x.Var),
+            var block = Ex.Block(new[] { rec }.Concat(pars.Select(x => x.Var)),
+                Ex.Assign(rec, recordCreator.Creator(from).ApplyTo(input)),
                 Ex.Block(new[] { tmp }, pars
                     .Select(x =>
                         x.Optional
                         ? Ex.Block(
                             Ex.IfThenElse(
                                 Ex.MakeBinary(ExpressionType.OrElse,
-                                    Ex.Call(input, tryGet, Ex.Constant(x.Var.Name), tmp),
-                                    Ex.Call(input, tryGet, Ex.Constant(ToPascalCase(x.Var.Name)), tmp)),
+                                    Ex.Call(rec, tryGet, Ex.Constant(x.Var.Name), tmp),
+                                    Ex.Call(rec, tryGet, Ex.Constant(ToPascalCase(x.Var.Name)), tmp)),
                                 Ex.Block(
                                     Ex.Assign(x.Var, x.Converter.ApplyTo(tmp)),
                                     Ex.IfThen(Ex.Not(Ex.Property(x.Var, nameof(IConversionResult.IsSuccessful))),
                                         Ex.Goto(end, NoResult(to)))),
                                 Ex.Assign(x.Var, Result(x.Type, Ex.Constant(x.Default, x.Type)))))
                         : Ex.Block(
-                            Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(x.Var.Name), tmp)),
-                                Ex.IfThen(Ex.Not(Ex.Call(input, tryGet, Ex.Constant(ToPascalCase(x.Var.Name)), tmp)),
+                            Ex.IfThen(Ex.Not(Ex.Call(rec, tryGet, Ex.Constant(x.Var.Name), tmp)),
+                                Ex.IfThen(Ex.Not(Ex.Call(rec, tryGet, Ex.Constant(ToPascalCase(x.Var.Name)), tmp)),
                                     Ex.Goto(end, NoResult(to)))),
                             Ex.Assign(x.Var, x.Converter.ApplyTo(tmp)),
                             Ex.IfThen(Ex.Not(Ex.Property(x.Var, nameof(IConversionResult.IsSuccessful))),
@@ -156,18 +281,6 @@ namespace Biz.Morsink.DataConvert.Converters
             => CreateLambda(from, to).Compile();
 
         #region Helper methods
-        private Type GetDictionaryValueType(Type t)
-            => (from itf in t.GetTypeInfo().ImplementedInterfaces.Concat(new[] { t })
-                let ga = itf.GenericTypeArguments
-                where ga.Length == 2 && ga[0] == typeof(string) && itf.GetGenericTypeDefinition() == typeof(IDictionary<,>)
-                select ga[1]).FirstOrDefault();
-        private bool IsCompatibleDictionaryType(Type t)
-        {
-            var ti = t.GetTypeInfo();
-            return ti.GenericTypeArguments.Length == 2
-                && (ti.GetGenericTypeDefinition() == typeof(IDictionary<,>) || ti.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                && GetDictionaryValueType(t) != null;
-        }
         private ConstructorInfo GetConstructorForType(Type t)
         {
             var ti = t.GetTypeInfo();

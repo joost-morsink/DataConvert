@@ -7,7 +7,7 @@ using System.Text;
 namespace Biz.Morsink.DataConvert.Test
 {
     [TestClass]
-    public class DictionaryObjectConverterTest
+    public class RecordConverterTest
     {
         private DataConverter converter;
 
@@ -36,11 +36,11 @@ namespace Biz.Morsink.DataConvert.Test
                 IdentityConverter.Instance,
                 new TryParseConverter(),
                 new ToStringConverter(true),
-                new DictionaryObjectConverter(),
+                RecordConverter.ForDictionaries(),
                 new DynamicConverter());
         }
         [TestMethod]
-        public void DictObj_HappyConstructor()
+        public void Rec_HappyConstructor()
         {
             var d = new Dictionary<string, object>
             {
@@ -54,7 +54,7 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.AreEqual(37, p.Age, "Conforming dictionary should convert the value of Age");
         }
         [TestMethod]
-        public void DictObj_HappySetter()
+        public void Rec_HappySetter()
         {
             var d = new Dictionary<string, string>
             {
@@ -69,7 +69,7 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.AreEqual(37, p.Age, "Conforming dictionary should convert the value of Age");
         }
         [TestMethod]
-        public void DictObj_HappyToDict()
+        public void Rec_HappyToDict()
         {
             var p = new PersonC("Joost", "Morsink", 37);
             Assert.IsTrue(converter.Convert(p).TryTo(out Dictionary<string, string> d), "An object should be convertible to a dictionary");
@@ -79,7 +79,7 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.AreEqual(p.Age.ToString(), d["Age"], "Property value Age should be converted in dictionary");
         }
         [TestMethod]
-        public void DictObj_UnhappyValue()
+        public void Rec_UnhappyValue()
         {
             var d = new Dictionary<string, string>
             {
@@ -91,7 +91,7 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(converter.Convert(d).TryTo(out PersonS q), "Unparseable int should fail entire conversion for property setter types");
         }
         [TestMethod]
-        public void DictObj_HappyKey()
+        public void Rec_HappyKey()
         {
             var d = new Dictionary<string, string>
             {
@@ -102,7 +102,7 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsTrue(converter.Convert(d).TryTo(out PersonS q), "Non-existent key should be ignored for property setter types");
         }
         [TestMethod]
-        public void DictObj_UnhappyKey()
+        public void Rec_UnhappyKey()
         {
             var d = new Dictionary<string, string>
             {
@@ -113,7 +113,7 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(converter.Convert(d).TryTo(out PersonC p), "Non-existent key should fail entire conversion for parameterized constructor types");
         }
         [TestMethod]
-        public void DictObj_DefaultParam()
+        public void Rec_DefaultParam()
         {
             var d = new Dictionary<string, string>
             {
