@@ -7,8 +7,10 @@ The default pipeline consists of the following components in order of occurence:
 * [Base64Converter](base64.md)
 * [ToStringConverter](toString.md)
 * [TryParseConverter](tryParse.md)
+  * Restricted by a RestrictTypesConverter.
 * [EnumToNumericConverter](enumToNum.md)
 * [SimpleNumericConverter](simpleNum.md)
+* [BooleanConverter](bool.md)
 * [NumericToEnumConverter](numToEnum.md)
 * [EnumParseConverter](enumParse.md)
 * [ToNullableConverter](toNullable.md)
@@ -17,6 +19,8 @@ The default pipeline consists of the following components in order of occurence:
   * Restricted by a RestrictTypesConverter.
 * [DynamicConverter](dynamic.md)
 
+### TryParseConverter
+The `TryParseConverter` is restricted to not parse `bool`s, as that task is better performed by the `BooleanConverter` later on in the pipeline. 
 
 ### FromStringRepresentationConverter restriction
 The `FromStringRepresentationConverter` is restricted on its input type (not equal to `Version`).

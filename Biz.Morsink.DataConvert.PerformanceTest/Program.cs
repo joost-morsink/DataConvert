@@ -41,6 +41,20 @@ namespace Biz.Morsink.DataConvert.PerformanceTest
                 .ReferenceAction(() => { var _ = (int?)Convert.ToInt32("42"); })
                 .MeasurementAction(() => { var _ = c("42").Result; });
         }
+        private static Measure StringToBool(IDataConverter converter)
+        {
+            var c = converter.GetConverter<string, bool>();
+            return Measure.Create("string to bool conversion")
+                .ReferenceAction(() => { var _ = Convert.ToBoolean("TRUE"); })
+                .MeasurementAction(() => { var _ = c("TRUE").Result; });
+        }
+        private static Measure IntToBool(IDataConverter converter)
+        {
+            var c = converter.GetConverter<int, bool>();
+            return Measure.Create("int to bool conversion")
+                .ReferenceAction(() => { var _ = Convert.ToBoolean(1); })
+                .MeasurementAction(() => { var _ = c(1).Result; });
+        }
         private static Measure DynamicStringToInt(IDataConverter converter)
         {
             var c = converter.GetConverter<object, int>();

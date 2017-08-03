@@ -7,6 +7,7 @@
 * [Component Reference](reference/README.md)
   * [Base64Converter](reference/base64.md)
   * [Base64IntegerConverter](reference/base64int.md)
+  * [BooleanConverter](reference/bool.md)
   * [DefaultConvertConverter](reference/default.md)
   * [DynamicConverter](reference/dynamic.md)
   * [EnumerableToTupleConverter](reference/enumerable2tuple.md)

@@ -152,9 +152,10 @@ namespace Biz.Morsink.DataConvert
                 IsoDateTimeConverter.Instance,
                 Base64Converter.Instance,
                 new ToStringConverter(true),
-                new TryParseConverter(),
+                new TryParseConverter().Restrict((from, to) => to != typeof(bool)), // bool parsing has a custom converter in pipeline
                 EnumToNumericConverter.Instance,
                 SimpleNumericConverter.Instance,
+                BooleanConverter.Instance,
                 new NumericToEnumConverter(),
                 EnumParseConverter.CaseInsensitive,
                 new ToNullableConverter(),
