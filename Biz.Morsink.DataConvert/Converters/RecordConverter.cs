@@ -22,6 +22,8 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public interface IRecordCreator
         {
+            bool CanConvertToRecord { get; }
+            bool CanConvertFromRecord { get; }
             /// <summary>
             /// Determines if the type is compatible.
             /// </summary>
@@ -72,14 +74,23 @@ namespace Biz.Morsink.DataConvert.Converters
             /// </summary>
             public static DictionaryRecordCreator Instance { get; } = new DictionaryRecordCreator();
 
+            public bool CanConvertFromRecord => true;
+
+            public bool CanConvertToRecord => true;
+
             public LambdaExpression Creator(Type t)
             {
                 var valueType = GetValueType(t);
                 var inner = Ex.Parameter(typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType), "inner");
+               
                 return Ex.Lambda(
-                    Ex.New(
-                        typeof(DictionaryRecord<>).MakeGenericType(valueType).GetTypeInfo().DeclaredConstructors.First(),
-                        inner), inner);
+                    Ex.Condition(
+                        Ex.Property(Ex.Convert(inner,typeof(ICollection<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(typeof(string),valueType))),
+                            nameof(ICollection<object>.IsReadOnly)),
+                        Ex.Default(typeof(DictionaryRecord<>).MakeGenericType(valueType)),
+                        Ex.New(
+                            typeof(DictionaryRecord<>).MakeGenericType(valueType).GetTypeInfo().DeclaredConstructors.First(),
+                            inner)), inner);
             }
 
             public Type GetValueType(Type t)
@@ -118,6 +129,67 @@ namespace Biz.Morsink.DataConvert.Converters
             public bool TryGetValue(string key, out T value)
                 => inner.TryGetValue(key, out value);
         }
+        /// <summary>
+        /// Implementation of IRecordCreator for IReadOnlyDictionary&lt;string, T&gt;.
+        /// </summary>
+        public class ReadOnlyDictionaryRecordCreator : IRecordCreator
+        {
+            /// <summary>
+            /// Singleton instance.
+            /// </summary>
+            public static ReadOnlyDictionaryRecordCreator Instance { get; } = new ReadOnlyDictionaryRecordCreator();
+
+            public bool CanConvertFromRecord => true;
+
+            public bool CanConvertToRecord => false;
+
+            public LambdaExpression Creator(Type t)
+            {
+                var valueType = GetValueType(t);
+                var inner = Ex.Parameter(typeof(IReadOnlyDictionary<,>).MakeGenericType(typeof(string), valueType), "inner");
+                return Ex.Lambda(
+                    Ex.New(
+                        typeof(ReadOnlyDictionaryRecord<>).MakeGenericType(valueType).GetTypeInfo().DeclaredConstructors.First(),
+                        inner), inner);
+            }
+
+            public Type GetValueType(Type t)
+                => (from itf in t.GetTypeInfo().ImplementedInterfaces.Concat(new[] { t })
+                    let ga = itf.GenericTypeArguments
+                    where ga.Length == 2 && ga[0] == typeof(string) && itf.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)
+                    select ga[1]).FirstOrDefault();
+
+            public bool IsTypeCompatible(Type t)
+                => GetValueType(t) != null;
+            //{
+            //    var ti = t.GetTypeInfo();
+            //    return ti.ImplementedInterfaces.Select(itf => itf.GetTypeInfo()).Concat(new[] { ti })
+            //        .Any(itf => itf.GenericTypeArguments.Length == 2
+            //            && itf.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)
+            //            && GetValueType(t) != null);
+            //}
+        }
+        /// <summary>
+        /// Implementation of IRecord&lt;T&gt; for IReadOnlyDictionary&lt;string, T&gt;.
+        /// </summary>
+        /// <typeparam name="T">The valuetype of the record.</typeparam>
+        public class ReadOnlyDictionaryRecord<T> : IRecord<T>
+        {
+            private readonly IReadOnlyDictionary<string, T> inner;
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="inner">The dictionary instance to expose the IRecord&lt;T&gt; interface for.</param>
+            public ReadOnlyDictionaryRecord(IReadOnlyDictionary<string, T> inner)
+            {
+                this.inner = inner;
+            }
+
+            public void SetValue(string key, T value)
+                => throw new NotSupportedException();
+            public bool TryGetValue(string key, out T value)
+                => inner.TryGetValue(key, out value);
+        }
         #endregion
 
         private readonly IRecordCreator recordCreator;
@@ -133,8 +205,11 @@ namespace Biz.Morsink.DataConvert.Converters
         /// <summary>
         /// Creates a RecordConverter for dictionary types.
         /// </summary>
-        /// <returns></returns>
         public static RecordConverter ForDictionaries() => new RecordConverter(DictionaryRecordCreator.Instance);
+        /// <summary>
+        /// Creates a RecordConverter for read only dictionary types.
+        /// </summary>
+        public static RecordConverter ForReadOnlyDictionaries() => new RecordConverter(ReadOnlyDictionaryRecordCreator.Instance);
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -149,8 +224,8 @@ namespace Biz.Morsink.DataConvert.Converters
         public IDataConverter Ref { get; set; }
 
         public bool CanConvert(Type from, Type to)
-            => recordCreator.IsTypeCompatible(from) && IsCompatibleObjectType(to)
-            || IsCompatibleObjectType(from) && recordCreator.IsTypeCompatible(to);
+            => recordCreator.CanConvertFromRecord && recordCreator.IsTypeCompatible(from) && IsCompatibleObjectType(to)
+            || recordCreator.CanConvertToRecord && IsCompatibleObjectType(from) && recordCreator.IsTypeCompatible(to) && GetParameterlessConstructor(to) != null;
 
         public LambdaExpression CreateLambda(Type from, Type to)
         {
@@ -184,6 +259,7 @@ namespace Biz.Morsink.DataConvert.Converters
             var block = Ex.Block(new[] { tmp, res, rec },
                 Ex.Assign(res, Ex.New(GetParameterlessConstructor(to))),
                 Ex.Assign(rec, recordCreator.Creator(to).ApplyTo(res)),
+                Ex.IfThen(Ex.MakeBinary(ExpressionType.Equal, rec, Ex.Default(rec.Type)), Ex.Goto(end,NoResult(to))),
                 Ex.Block(getters.Zip(converters, (g, c) => new { g, c })
                     .Select(x =>
                         Ex.Block(

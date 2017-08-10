@@ -10,6 +10,8 @@ The interfaces are as follows:
 ```csharp
 interface IRecordCreator
 {
+    bool CanConvertFromRecord { get; }
+    bool CanConvertToRecord { get; }
     bool IsTypeCompatible(Type t);
     Type GetValueType(Type t);
     LambdaExpression Creator(Type t);
@@ -22,6 +24,7 @@ interface IRecord<T>
 ```
 
 The creator interface is responsible for:
+* Determining which ways the converter supports conversion through the `CanConvertFromRecord` and `CanConvertToRecord` properties.
 * Determining whether some type is supported by this creator through implementation of `IsTypeCompatible`.
 * Determining what the value type of some record type is through implementation of `GetValueType`.
 * Creating a lambda expression that can create an `IRecord<T>` instance for the passed parameter through implementation of `Creator`.
@@ -30,6 +33,8 @@ The implementation of `IRecord<T>` is then used internally for getting and setti
 The interface can be viewed as the minimal subset of `IDictionary<K,V>` needed for this converter.
 
 Implementations of these interfaces for `IDictionary<string, T>` and `Dictionary<string, T>` are given as nested classes on the RecordConverter and a RecordConverter using these can be constructed using the static `ForDictionaries()` method.
+
+There is also an implementation for `IReadOnlyDictionary<string, T>` (only for conversions from implementing types) accesible through the static `ForReadOnlyDictionaries()` method.
 
 The dataclasses need to conform to one of the following prescribed structure:
 * Gettable properties and a constructor having a parameter for each property.

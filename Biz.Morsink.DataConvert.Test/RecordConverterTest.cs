@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 
 namespace Biz.Morsink.DataConvert.Test
@@ -36,6 +37,7 @@ namespace Biz.Morsink.DataConvert.Test
                 IdentityConverter.Instance,
                 new TryParseConverter(),
                 new ToStringConverter(true),
+                RecordConverter.ForReadOnlyDictionaries(),
                 RecordConverter.ForDictionaries(),
                 new DynamicConverter());
         }
@@ -124,6 +126,17 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.AreEqual("Joost", p.FirstName);
             Assert.AreEqual("Morsink", p.LastName);
             Assert.AreEqual(-1, p.Age);
+        }
+        [TestMethod]
+        public void Rec_ReadonlyDict()
+        {
+            var dict = ImmutableDictionary<string, string>.Empty.Add("FirstName", "Joost").Add("LastName", "Morsink").Add("Age", "37");
+            Assert.IsTrue(converter.Convert(dict).TryTo(out PersonC p));
+            Assert.AreEqual("Joost", p.FirstName);
+            Assert.AreEqual("Morsink", p.LastName);
+            Assert.AreEqual(37, p.Age);
+            Assert.IsFalse(converter.Convert(p).TryTo(out ImmutableDictionary<string, string> _));
+            Assert.IsFalse(converter.Convert(p).TryTo(out IReadOnlyDictionary<string, string> _));
         }
     }
 }
