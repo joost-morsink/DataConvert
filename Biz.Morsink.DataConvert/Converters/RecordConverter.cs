@@ -376,12 +376,12 @@ namespace Biz.Morsink.DataConvert.Converters
         private IReadOnlyCollection<PropertyInfo> GetWritablePropertiesForType(Type t)
             => t.GetTypeInfo().Iterate(x => x.BaseType?.GetTypeInfo()).TakeWhile(x => x != null)
                 .SelectMany(x => x.DeclaredProperties)
-                .Where(pi => pi.CanWrite)
+                .Where(pi => pi.CanWrite && pi.GetIndexParameters().Length == 0)
                 .ToArray();
         private IReadOnlyCollection<PropertyInfo> GetReadablePropertiesForType(Type t)
             => t.GetTypeInfo().Iterate(x => x.BaseType?.GetTypeInfo()).TakeWhile(x => x != null)
                 .SelectMany(x => x.DeclaredProperties)
-                .Where(pi => pi.CanRead)
+                .Where(pi => pi.CanRead && pi.GetIndexParameters().Length == 0)
                 .ToArray();
         private bool IsCompatibleObjectType(Type t)
             => GetConstructorForType(t) != null || GetParameterlessConstructor(t) != null && GetWritablePropertiesForType(t).Count > 0;
