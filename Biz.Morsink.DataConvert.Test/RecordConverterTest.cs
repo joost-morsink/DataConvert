@@ -138,5 +138,11 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsFalse(converter.Convert(p).TryTo(out ImmutableDictionary<string, string> _));
             Assert.IsFalse(converter.Convert(p).TryTo(out IReadOnlyDictionary<string, string> _));
         }
+        [TestMethod]
+        public void Rec_StaticUnhappy()
+        {
+            Assert.IsFalse(RecordConverter.ForDictionaries().CanConvert(typeof(object), typeof(Dictionary<string, string>)));
+            Assert.IsFalse(RecordConverter.ForDictionaries().CanConvert(typeof(Dictionary<string, string>), typeof(object)));
+        }
     }
 }

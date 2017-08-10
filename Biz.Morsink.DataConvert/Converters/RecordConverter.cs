@@ -365,7 +365,7 @@ namespace Biz.Morsink.DataConvert.Converters
                 return null;
             var ctor = from ci in ti.DeclaredConstructors
                        let ps = ci.GetParameters()
-                       where ps.Length == props.Count()
+                       where ps.Length > 0 && ps.Length == props.Count()
                         && ps.Join(props, p => p.Name, p => p.Name, (_, __) => 1, CaseInsensitiveEqualityComparer.Instance).Count() == ps.Length
                        select ci;
             return ctor.FirstOrDefault();
