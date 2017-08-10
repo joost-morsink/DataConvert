@@ -160,8 +160,8 @@ namespace Biz.Morsink.DataConvert
                 EnumParseConverter.CaseInsensitive,
                 new ToNullableConverter(),
                 TupleConverter.Instance,
-                new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 ToObjectConverter.Instance,
+                new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
                 new DynamicConverter()
             );
 
