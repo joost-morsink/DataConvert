@@ -4,6 +4,7 @@ The following `IConverter` components have been developed:
 
 * [Base64Converter](base64.md)
 * [Base64IntegerConverter](base6int.md)
+* [BooleanConverter](bool.md)
 * [DefaultConvertConverter](default.md)
 * [DynamicConverter](dynamic.md)
 * [EnumerableToTupleConverter](enumerable2tuple.md)
@@ -18,6 +19,7 @@ The following `IConverter` components have been developed:
 * [SeparatedStringConverter](sepString.md)
 * [SimpleNumericConverter](simpleNum.md)
 * [ToNullableConverter](toNullable.md)
+* [ToObjectConverter](toObj.md)
 * [ToStringConverter](toString.md)
 * [TryParseConverter](tryParse.md)
 * [TupleConverter](tuple.md)

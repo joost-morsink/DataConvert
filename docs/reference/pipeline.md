@@ -17,6 +17,7 @@ The default pipeline consists of the following components in order of occurence:
 * [TupleConverter](tuple.md)
 * [FromStringRepresentationConverter](fromStringRep.md) 
   * Restricted by a RestrictTypesConverter.
+* [ToObjectConverter](toObj.md)
 * [DynamicConverter](dynamic.md)
 
 ### TryParseConverter

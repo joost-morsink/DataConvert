@@ -161,6 +161,7 @@ namespace Biz.Morsink.DataConvert
                 new ToNullableConverter(),
                 TupleConverter.Instance,
                 new FromStringRepresentationConverter().Restrict((from, to) => from != typeof(Version)), // Version could conflict with numeric types' syntaxes.
+                ToObjectConverter.Instance,
                 new DynamicConverter()
             );
 

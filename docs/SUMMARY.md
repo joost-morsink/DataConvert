@@ -22,6 +22,7 @@
   * [SeparatedStringConverter](reference/sepString.md)
   * [SimpleNumericConverter](reference/simpleNum.md)
   * [ToNullableConverter](reference/toNullable.md)
+  * [ToObjectConverter](reference/toObj.md)
   * [ToStringConverter](reference/toString.md)
   * [TryParseConverter](reference/tryParse.md)
   * [TupleConverter](reference/tuple.md)
