@@ -17,6 +17,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/joost-morsink/DataConvert.git</RepositoryUrl>
+    <Configurations>Debug;Release;Prerelease</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
     <VersionSuffix>beta001</VersionSuffix>

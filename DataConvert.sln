@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biz.Morsink.DataConvert", "Biz.Morsink.DataConvert\Biz.Morsink.DataConvert.csproj", "{D958919B-F1F0-4A4D-A862-CCCC0AE75BD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Biz.Morsink.DataConvert", "Biz.Morsink.DataConvert\Biz.Morsink.DataConvert.csproj", "{D958919B-F1F0-4A4D-A862-CCCC0AE75BD5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A0C5E3C-C175-455F-93F4-067F627D6DB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biz.Morsink.DataConvert.Test", "Biz.Morsink.DataConvert.Test\Biz.Morsink.DataConvert.Test.csproj", "{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Biz.Morsink.DataConvert.Test", "Biz.Morsink.DataConvert.Test\Biz.Morsink.DataConvert.Test.csproj", "{37D19848-94B0-43DD-B4D5-C1C32AB38E8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biz.Morsink.DataConvert.PerformanceTest", "Biz.Morsink.DataConvert.PerformanceTest\Biz.Morsink.DataConvert.PerformanceTest.csproj", "{4A91FBA8-5C3A-4F46-9D17-3BB06616CEA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Biz.Morsink.DataConvert.PerformanceTest", "Biz.Morsink.DataConvert.PerformanceTest\Biz.Morsink.DataConvert.PerformanceTest.csproj", "{4A91FBA8-5C3A-4F46-9D17-3BB06616CEA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,5 +39,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DE1465CE-AC58-492A-804A-BA7DD783DF4E}
 	EndGlobalSection
 EndGlobal
