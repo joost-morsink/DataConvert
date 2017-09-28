@@ -30,6 +30,10 @@ namespace Biz.Morsink.DataConvert.Test
             public string LastName { get; set; }
             public int Age { get; set; }
         }
+        public class Unit
+        {
+
+        }
         [TestInitialize]
         public void Init()
         {
@@ -143,6 +147,11 @@ namespace Biz.Morsink.DataConvert.Test
         {
             Assert.IsFalse(RecordConverter.ForDictionaries().CanConvert(typeof(object), typeof(Dictionary<string, string>)));
             Assert.IsFalse(RecordConverter.ForDictionaries().CanConvert(typeof(Dictionary<string, string>), typeof(object)));
+        }
+        [TestMethod]
+        public void Rec_HappyEmpty()
+        {
+            Assert.IsTrue(converter.Convert(new Dictionary<string, string>()).Result<Unit>().IsSuccessful);
         }
     }
 }
