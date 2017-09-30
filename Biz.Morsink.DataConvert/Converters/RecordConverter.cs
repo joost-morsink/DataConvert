@@ -43,6 +43,18 @@ namespace Biz.Morsink.DataConvert.Converters
             /// <param name="t">The type to create an IRecord&ltT&gt; for.</param>
             /// <returns>A LambdaExpression that can create a new IRecord&ltT&gt; instance.</returns>
             LambdaExpression Creator(Type t);
+            /// <summary>
+            /// Creates a LambdaExpression which creates an underlying instance for the IRecord&lt;T&gt; interface.
+            /// </summary>
+            /// <param name="to">The type to create</param>
+            /// <returns>A LambdaExpression that can create an underlying instance for an IRecord&lt;T&gt;</returns>
+            Ex New(Type to);
+            /// <summary>
+            /// May convert an input object into one that can be properly processed by the RecordCreator.
+            /// </summary>
+            /// <param name="to"></param>
+            /// <returns></returns>
+            LambdaExpression ConvertInputObject(Type from);
         }
         /// <summary>
         /// Interface for getting and setting value in a string keyed record structure.
@@ -69,18 +81,38 @@ namespace Biz.Morsink.DataConvert.Converters
         /// </summary>
         public class DictionaryRecordCreator : IRecordCreator
         {
+            private readonly IEqualityComparer<string> keyComparer;
+
             /// <summary>
-            /// Singleton instance.
+            /// Case sensitive instance.
             /// </summary>
-            public static DictionaryRecordCreator Instance { get; } = new DictionaryRecordCreator();
+            public static DictionaryRecordCreator CaseSensitive { get; } = new DictionaryRecordCreator(EqualityComparer<string>.Default);
+            /// <summary>
+            /// Case insensitive instance.
+            /// </summary>
+            public static DictionaryRecordCreator CaseInsensitive { get; } = new DictionaryRecordCreator(CaseInsensitiveEqualityComparer.Instance);
+
+            private DictionaryRecordCreator(IEqualityComparer<string> keyComparer)
+            {
+                this.keyComparer = keyComparer;
+            }
 
             public bool CanConvertFromRecord => true;
 
             public bool CanConvertToRecord => true;
 
-            public LambdaExpression Creator(Type t)
+            public Ex New(Type to)
             {
-                var valueType = GetValueType(t);
+                var valueType = GetValueType(to);
+                return Ex.Lambda(Ex.Convert(
+                    Ex.New(typeof(Dictionary<,>).MakeGenericType(typeof(string), valueType).GetTypeInfo()
+                        .DeclaredConstructors.First(ci => ci.GetParameters().Length == 1 && ci.GetParameters()[0].ParameterType == typeof(IEqualityComparer<string>)),
+                    Ex.Constant(keyComparer)), to));
+            }
+
+            public LambdaExpression Creator(Type to)
+            {
+                var valueType = GetValueType(to);
                 var inner = Ex.Parameter(typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType), "inner");
 
                 return Ex.Lambda(
@@ -91,6 +123,11 @@ namespace Biz.Morsink.DataConvert.Converters
                         Ex.New(
                             typeof(DictionaryRecord<>).MakeGenericType(valueType).GetTypeInfo().DeclaredConstructors.First(),
                             inner)), inner);
+            }
+            public LambdaExpression ConvertInputObject(Type from)
+            {
+                var valueType = GetValueType(from);
+                var eqc = typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType).GetTypeInfo().GetDeclaredProperty(nameof(IDictionary<string,object>.))
             }
 
             public Type GetValueType(Type t)
@@ -143,6 +180,9 @@ namespace Biz.Morsink.DataConvert.Converters
 
             public bool CanConvertToRecord => false;
 
+            public Ex New(Type to)
+                => throw new NotImplementedException();
+
             public LambdaExpression Creator(Type t)
             {
                 var valueType = GetValueType(t);
@@ -187,18 +227,11 @@ namespace Biz.Morsink.DataConvert.Converters
 
         private readonly IRecordCreator recordCreator;
 
-        // TODO: Implement case sensitive/insensitive keys for the dictionary type
-        // public static DictionaryObjectConverter CaseSensitive => new DictionaryObjectConverter();
-        // public static DictionaryObjectConverter CaseInsensitive = new DictionaryObjectConverter(CaseInsensitiveEqualityComparer.Instance);
-        // public DictionaryObjectConverter(IEqualityComparer<string> keyComparer = null)
-        // {
-        //     KeyComparer = keyComparer ?? EqualityComparer<string>.Default; ;
-        // }
-        // public IEqualityComparer<string> KeyComparer { get; }
         /// <summary>
         /// Creates a RecordConverter for dictionary types.
         /// </summary>
-        public static RecordConverter ForDictionaries() => new RecordConverter(DictionaryRecordCreator.Instance);
+        public static RecordConverter ForDictionaries(bool caseSensitive = true)
+            => new RecordConverter(caseSensitive ? DictionaryRecordCreator.CaseSensitive : DictionaryRecordCreator.CaseInsensitive);
         /// <summary>
         /// Creates a RecordConverter for read only dictionary types.
         /// </summary>
@@ -250,7 +283,7 @@ namespace Biz.Morsink.DataConvert.Converters
 
             var end = Ex.Label(typeof(ConversionResult<>).MakeGenericType(to));
             var block = Ex.Block(new[] { tmp, res, rec },
-                Ex.Assign(res, Ex.New(GetParameterlessConstructor(to))),
+                Ex.Assign(res, recordCreator.New(to)),
                 Ex.Assign(rec, recordCreator.Creator(to).ApplyTo(res)),
                 Ex.IfThen(Ex.MakeBinary(ExpressionType.Equal, rec, Ex.Default(rec.Type)), Ex.Goto(end, NoResult(to))),
                 Ex.Block(getters.Zip(converters, (g, c) => new { g, c })
