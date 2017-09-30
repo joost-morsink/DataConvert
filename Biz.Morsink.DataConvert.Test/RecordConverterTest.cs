@@ -52,7 +52,7 @@ namespace Biz.Morsink.DataConvert.Test
             {
                 ["FirstName"] = "Joost",
                 ["LastName"] = "Morsink",
-                ["Age"] = "37"
+                ["age"] = "37"
             };
             Assert.IsTrue(converter.Convert(d).TryTo(out PersonC p), "Conforming dictionary should be convertible using parameterized constructor.");
             Assert.AreEqual("Joost", p.FirstName, "Conforming dictionary should be preserve value of FirstName");
@@ -66,7 +66,7 @@ namespace Biz.Morsink.DataConvert.Test
             {
                 ["FirstName"] = "Joost",
                 ["LastName"] = "Morsink",
-                ["Age"] = "37"
+                ["age"] = "37"
             };
 
             Assert.IsTrue(converter.Convert(d).TryTo(out PersonS p), "Conforming dictionary should be convertible using setters");
