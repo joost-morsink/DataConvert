@@ -20,7 +20,7 @@
     <Configurations>Debug;Release;Prerelease</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
-    <VersionSuffix>beta001</VersionSuffix>
+    <VersionSuffix>beta.1</VersionSuffix>
     <Optimize>True</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Release'">
@@ -28,7 +28,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Debug'">
     <Optimize>False</Optimize>
-    <VersionSuffix>a000debug</VersionSuffix>
+    <VersionSuffix>a000.debug.0</VersionSuffix>
   </PropertyGroup>
   <ItemGroup Condition="$(TargetFramework) == 'netstandard1.3'">
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
