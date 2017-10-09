@@ -34,7 +34,7 @@ namespace Biz.Morsink.DataConvert.Converters
                 if (to == typeof(string))
                     return Ex.Lambda(Result(to, Ex.Call(input, nameof(bool.ToString), Type.EmptyTypes)), input);
                 else
-                    return Ex.Lambda(Result(to, Ex.Condition(input, Ex.Constant(1, to), Ex.Constant(0, to))), input);
+                    return Ex.Lambda(Result(to, Ex.Condition(input, Ex.Constant(Convert.ChangeType(1, to), to), Ex.Constant(Convert.ChangeType(0, to), to))), input);
             }
             else // to == typeof(bool)
             {
@@ -44,7 +44,7 @@ namespace Biz.Morsink.DataConvert.Converters
                     var i = Ex.Parameter(typeof(int), "i");
                     var body = Ex.Block(new[] { i },
                         Ex.Condition(
-                            Ex.Call(typeof(string),nameof(string.Equals), Type.EmptyTypes,
+                            Ex.Call(typeof(string), nameof(string.Equals), Type.EmptyTypes,
                                 input,
                                 Ex.Constant("true"),
                                 Ex.Constant(StringComparison.OrdinalIgnoreCase)),
@@ -62,8 +62,8 @@ namespace Biz.Morsink.DataConvert.Converters
                 }
                 else
                     return Ex.Lambda(Result(to,
-                            Ex.MakeBinary(ExpressionType.NotEqual, input, Ex.Constant(0, from))), input);
-                
+                            Ex.MakeBinary(ExpressionType.NotEqual, input, Ex.Constant(Convert.ChangeType(0, from), from))), input);
+
             }
         }
     }

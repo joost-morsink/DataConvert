@@ -82,10 +82,10 @@ namespace Biz.Morsink.DataConvert.Converters
             {
                 var valueType = GetValueType(t);
                 var inner = Ex.Parameter(typeof(IDictionary<,>).MakeGenericType(typeof(string), valueType), "inner");
-               
+
                 return Ex.Lambda(
                     Ex.Condition(
-                        Ex.Property(Ex.Convert(inner,typeof(ICollection<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(typeof(string),valueType))),
+                        Ex.Property(Ex.Convert(inner, typeof(ICollection<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(typeof(string), valueType))),
                             nameof(ICollection<object>.IsReadOnly)),
                         Ex.Default(typeof(DictionaryRecord<>).MakeGenericType(valueType)),
                         Ex.New(
@@ -161,13 +161,6 @@ namespace Biz.Morsink.DataConvert.Converters
 
             public bool IsTypeCompatible(Type t)
                 => GetValueType(t) != null;
-            //{
-            //    var ti = t.GetTypeInfo();
-            //    return ti.ImplementedInterfaces.Select(itf => itf.GetTypeInfo()).Concat(new[] { ti })
-            //        .Any(itf => itf.GenericTypeArguments.Length == 2
-            //            && itf.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>)
-            //            && GetValueType(t) != null);
-            //}
         }
         /// <summary>
         /// Implementation of IRecord&lt;T&gt; for IReadOnlyDictionary&lt;string, T&gt;.
@@ -259,7 +252,7 @@ namespace Biz.Morsink.DataConvert.Converters
             var block = Ex.Block(new[] { tmp, res, rec },
                 Ex.Assign(res, Ex.New(GetParameterlessConstructor(to))),
                 Ex.Assign(rec, recordCreator.Creator(to).ApplyTo(res)),
-                Ex.IfThen(Ex.MakeBinary(ExpressionType.Equal, rec, Ex.Default(rec.Type)), Ex.Goto(end,NoResult(to))),
+                Ex.IfThen(Ex.MakeBinary(ExpressionType.Equal, rec, Ex.Default(rec.Type)), Ex.Goto(end, NoResult(to))),
                 Ex.Block(getters.Zip(converters, (g, c) => new { g, c })
                     .Select(x =>
                         Ex.Block(
@@ -365,7 +358,7 @@ namespace Biz.Morsink.DataConvert.Converters
                 return null;
             var ctor = from ci in ti.DeclaredConstructors
                        let ps = ci.GetParameters()
-                       where ps.Length > 0 && ps.Length == props.Count()
+                       where ps.Length == props.Count()
                         && ps.Join(props, p => p.Name, p => p.Name, (_, __) => 1, CaseInsensitiveEqualityComparer.Instance).Count() == ps.Length
                        select ci;
             return ctor.FirstOrDefault();
@@ -376,15 +369,15 @@ namespace Biz.Morsink.DataConvert.Converters
         private IReadOnlyCollection<PropertyInfo> GetWritablePropertiesForType(Type t)
             => t.GetTypeInfo().Iterate(x => x.BaseType?.GetTypeInfo()).TakeWhile(x => x != null)
                 .SelectMany(x => x.DeclaredProperties)
-                .Where(pi => pi.CanWrite && pi.GetIndexParameters().Length == 0)
+                .Where(pi => pi.CanWrite && !pi.SetMethod.IsStatic && pi.GetIndexParameters().Length == 0)
                 .ToArray();
         private IReadOnlyCollection<PropertyInfo> GetReadablePropertiesForType(Type t)
             => t.GetTypeInfo().Iterate(x => x.BaseType?.GetTypeInfo()).TakeWhile(x => x != null)
                 .SelectMany(x => x.DeclaredProperties)
-                .Where(pi => pi.CanRead && pi.GetIndexParameters().Length == 0)
+                .Where(pi => pi.CanRead && !pi.GetMethod.IsStatic && pi.GetIndexParameters().Length == 0)
                 .ToArray();
         private bool IsCompatibleObjectType(Type t)
-            => GetConstructorForType(t) != null || GetParameterlessConstructor(t) != null && GetWritablePropertiesForType(t).Count > 0;
+            => t != typeof(object) && GetConstructorForType(t) != null || GetParameterlessConstructor(t) != null && GetWritablePropertiesForType(t).Count > 0;
         private string ToPascalCase(string str)
         {
             if (string.IsNullOrWhiteSpace(str))

@@ -23,6 +23,10 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.AreEqual(1, x, "True should convert to 1.");
             Assert.IsTrue(converter.Convert(false).TryTo(out x), "Conversion from boolean should always succeed.");
             Assert.AreEqual(0, x, "False should convert to 0.");
+            Assert.IsTrue(converter.Convert(true).TryTo(out short y), " Conversion from boolean should always succeed.");
+            Assert.AreEqual(1, y, "True should convert to 1.");
+            Assert.IsTrue(converter.Convert(false).TryTo(out y), " Conversion from boolean should always succeed.");
+            Assert.AreEqual(0, y, "True should convert to 0.");
             Assert.IsTrue(converter.Convert(true).TryTo(out string s), "Conversion from boolean should always succeed.");
             Assert.AreEqual("true", s.ToLowerInvariant(), "True should convert to some casing of 'true'.");
             Assert.IsTrue(converter.Convert(false).TryTo(out s), "Conversion from boolean should always succeed.");
@@ -35,6 +39,8 @@ namespace Biz.Morsink.DataConvert.Test
             Assert.IsTrue(converter.Convert(1).TryTo(out bool x) && x, "1 should convert to bool value true.");
             Assert.IsTrue(converter.Convert(123).TryTo(out x) && x, "Non-zero integers should convert to bool value true.");
             Assert.IsTrue(converter.Convert(0).TryTo(out x) && !x, "0 should convert to bool value false.");
+            Assert.IsTrue(converter.Convert((short)1).TryTo(out x) && x, "Short 1 should convert to bool value true.");
+            Assert.IsTrue(converter.Convert((short)0).TryTo(out x) && !x, "Short 0 should convert to bool value false.");
             Assert.IsTrue(converter.Convert("TrUe").TryTo(out x) && x, "Some casing of true should convert to bool value true.");
             Assert.IsTrue(converter.Convert("FaLsE").TryTo(out x) && !x, "Some casing of false should convert to bool value false.");
             Assert.IsTrue(converter.Convert("1").TryTo(out x) && x, "1-string should convert to bool value true.");
