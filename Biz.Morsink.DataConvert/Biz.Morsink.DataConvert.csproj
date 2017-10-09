@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>DataConvert</Title>
-    <VersionPrefix>0.3.0</VersionPrefix>
+    <VersionPrefix>0.4.0</VersionPrefix>
     <Authors>Joost W. Morsink</Authors>
     <Company>Morsink Software</Company>
     <PackageId>Biz.Morsink.DataConvert</PackageId>
@@ -17,6 +17,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/joost-morsink/DataConvert.git</RepositoryUrl>
+    <Configurations>Debug;Release;Prerelease</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
     <VersionSuffix>beta001</VersionSuffix>
