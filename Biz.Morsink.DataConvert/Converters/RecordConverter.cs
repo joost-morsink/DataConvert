@@ -353,7 +353,11 @@ namespace Biz.Morsink.DataConvert.Converters
         private ConstructorInfo GetConstructorForType(Type t)
         {
             var ti = t.GetTypeInfo();
-            var props = ti.Iterate(x => x.BaseType?.GetTypeInfo()).TakeWhile(x => x != null).SelectMany(x => x.DeclaredProperties).ToArray();
+            var props = ti.Iterate(x => x.BaseType?.GetTypeInfo())
+                .TakeWhile(x => x != null)
+                .SelectMany(x => x.DeclaredProperties)
+                .Where(p => !p.GetMethod.IsStatic)
+                .ToArray();
             if (!props.All(pi => pi.CanRead && !pi.CanWrite))
                 return null;
             var ctor = from ci in ti.DeclaredConstructors
