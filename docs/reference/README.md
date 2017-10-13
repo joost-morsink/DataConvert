@@ -3,7 +3,8 @@
 The following `IConverter` components have been developed:
 
 * [Base64Converter](base64.md)
-* [Base64IntegerConverter](base6int.md)
+* [Base64IntegerConverter](base64int.md)
+* [Base85Converter](base85.md)
 * [BooleanConverter](bool.md)
 * [DefaultConvertConverter](default.md)
 * [DynamicConverter](dynamic.md)
