@@ -1,5 +1,5 @@
 # RecordConverter
-This component is able to convert back and forth between dictionary-like types, called _record_s, and dataclasses.
+This component is able to convert back and forth between dictionary-like types, called _record_s, and data classes.
 
 _Record_ is an abstract concept and any type can be used if:
 * `IRecord<T>` and `IRecordCreator` (nested) interface implementations can be provided.
@@ -32,11 +32,11 @@ The creator interface is responsible for:
 The implementation of `IRecord<T>` is then used internally for getting and setting values. 
 The interface can be viewed as the minimal subset of `IDictionary<K,V>` needed for this converter.
 
-Implementations of these interfaces for `IDictionary<string, T>` and `Dictionary<string, T>` are given as nested classes on the RecordConverter and a RecordConverter using these can be constructed using the static `ForDictionaries()` method.
+Implementations of these interfaces for `IDictionary<string, T>`, `Dictionary<string, T>` and `ExpandoObject` are given as nested classes on the RecordConverter and a RecordConverter using these can be constructed using the static `ForDictionaries()` method.
 
-There is also an implementation for `IReadOnlyDictionary<string, T>` (only for conversions from implementing types) accesible through the static `ForReadOnlyDictionaries()` method.
+There is also an implementation for `IReadOnlyDictionary<string, T>` (only for conversions from implementing types) accessible through the static `ForReadOnlyDictionaries()` method.
 
-The dataclasses need to conform to one of the following prescribed structure:
+The data classes need to conform to one of the following prescribed structure:
 * Gettable properties and a constructor having a parameter for each property.
   The parameters should have the same name (case sensitive on all but the first character) as the properties.
 * Settable properties and a parameterless constructor.

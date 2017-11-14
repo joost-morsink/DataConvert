@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Dynamic;
 using System.Text;
 
 namespace Biz.Morsink.DataConvert.Test
@@ -152,6 +153,33 @@ namespace Biz.Morsink.DataConvert.Test
         public void Rec_HappyEmpty()
         {
             Assert.IsTrue(converter.Convert(new Dictionary<string, string>()).Result<Unit>().IsSuccessful);
+        }
+        [TestMethod]
+        public void Rec_HappyExpando()
+        {
+            converter = new DataConverter(
+               IdentityConverter.Instance,
+               new TryParseConverter(),
+               new ToStringConverter(true),
+               RecordConverter.ForReadOnlyDictionaries(),
+               RecordConverter.ForDictionaries(),
+               ToObjectConverter.Instance,
+               new DynamicConverter());
+
+            var e = new ExpandoObject();
+            dynamic d = e;
+            d.FirstName = "Joost";
+            d.LastName = "Morsink";
+            d.Age = 38;
+            Assert.IsTrue(converter.Convert(e).TryTo(out PersonS p));
+            Assert.AreEqual("Joost", p.FirstName);
+            Assert.AreEqual("Morsink", p.LastName);
+            Assert.AreEqual(38, p.Age);
+            Assert.IsTrue(converter.Convert(p).TryTo(out e));
+            d = e;
+            Assert.AreEqual("Joost", d.FirstName);
+            Assert.AreEqual("Morsink", d.LastName);
+            Assert.AreEqual(38, d.Age);
         }
     }
 }

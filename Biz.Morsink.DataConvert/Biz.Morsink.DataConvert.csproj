@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;netstandard1.6;netstandard2.0;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>DataConvert</Title>
     <VersionPrefix>0.4.0</VersionPrefix>
@@ -30,7 +30,22 @@
     <Optimize>False</Optimize>
     <VersionSuffix>a000debug</VersionSuffix>
   </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework) == 'net45'">
+    <DefineConstants>NET45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework) == 'netstandard1.3'">
+    <DefineConstants>STD_1_3</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework) == 'netstandard1.6'">
+    <DefineConstants>STD_1_6</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework) == 'netstandard2.0'">
+    <DefineConstants>STD_2_0</DefineConstants>
+  </PropertyGroup>
   <ItemGroup Condition="$(TargetFramework) == 'netstandard1.3'">
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework) == 'netstandard1.6'">
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
   </ItemGroup>
 </Project>

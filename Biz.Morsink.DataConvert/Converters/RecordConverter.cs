@@ -8,6 +8,9 @@ using System.Text;
 using Ex = System.Linq.Expressions.Expression;
 using static Biz.Morsink.DataConvert.DataConvertUtils;
 using System.Runtime.InteropServices;
+#if NET45 || STD_2_0 || STD_1_6
+using System.Dynamic;
+#endif
 
 namespace Biz.Morsink.DataConvert.Converters
 {
@@ -102,9 +105,17 @@ namespace Biz.Morsink.DataConvert.Converters
             public bool IsTypeCompatible(Type t)
             {
                 var ti = t.GetTypeInfo();
-                return ti.GenericTypeArguments.Length == 2
-                    && (ti.GetGenericTypeDefinition() == typeof(IDictionary<,>) || ti.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                    && GetValueType(t) != null;
+#if NET45 || STD_2_0 || STD_1_6
+                return t == typeof(ExpandoObject) 
+                    || ti.GenericTypeArguments.Length == 2
+                        && (ti.GetGenericTypeDefinition() == typeof(IDictionary<,>) || ti.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                        && GetValueType(t) != null;
+#else
+                return t.FullName == "System.Dynamic.ExpandoObject"
+                    || ti.GenericTypeArguments.Length == 2
+                        && (ti.GetGenericTypeDefinition() == typeof(IDictionary<,>) || ti.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                        && GetValueType(t) != null;
+#endif
             }
         }
         /// <summary>
@@ -183,7 +194,7 @@ namespace Biz.Morsink.DataConvert.Converters
             public bool TryGetValue(string key, out T value)
                 => inner.TryGetValue(key, out value);
         }
-        #endregion
+#endregion
 
         private readonly IRecordCreator recordCreator;
 
@@ -243,7 +254,7 @@ namespace Biz.Morsink.DataConvert.Converters
 
             var input = Ex.Parameter(from, "input");
             var tmp = Ex.Parameter(typeof(ConversionResult<>).MakeGenericType(valueType), "tmp");
-            var res = Ex.Parameter(to, "res");
+            var res = Ex.Parameter(typeof(IDictionary<,>).MakeGenericType(typeof(string),valueType), "res");
             var rec = Ex.Parameter(recType, "rec");
             var getters = GetReadablePropertiesForType(from);
             var converters = getters.Select(g => Ref.GetLambda(g.PropertyType, valueType));
@@ -260,7 +271,7 @@ namespace Biz.Morsink.DataConvert.Converters
                             Ex.IfThenElse(Ex.Property(tmp, nameof(IConversionResult.IsSuccessful)),
                                 Ex.Call(rec, set, Ex.Constant(x.g.Name), Ex.Property(tmp, nameof(IConversionResult.Result))),
                                 Ex.Goto(end, NoResult(to)))))),
-                Ex.Label(end, Result(to, res)));
+                Ex.Label(end, Result(to, Ex.Convert(res,to))));
             return Ex.Lambda(block, input);
         }
 
@@ -349,7 +360,7 @@ namespace Biz.Morsink.DataConvert.Converters
         public Delegate Create(Type from, Type to)
             => CreateLambda(from, to).Compile();
 
-        #region Helper methods
+#region Helper methods
         private ConstructorInfo GetConstructorForType(Type t)
         {
             var ti = t.GetTypeInfo();
@@ -405,6 +416,6 @@ namespace Biz.Morsink.DataConvert.Converters
             ca[0] = firstUpper;
             return new string(ca);
         }
-        #endregion
+#endregion
     }
 }
