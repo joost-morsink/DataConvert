@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Biz.Morsink.DataConvert
+﻿namespace Biz.Morsink.DataConvert
 {
     /// <summary>
     /// This struct represents the result of a conversion. It can either be a successful or a failed ConversionResult. 

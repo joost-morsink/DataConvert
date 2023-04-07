@@ -13,6 +13,7 @@ The default pipeline consists of the following components in order of occurence:
 * [BooleanConverter](bool.md)
 * [NumericToEnumConverter](numToEnum.md)
 * [EnumParseConverter](enumParse.md)
+* [ImplicitOperatorConverter](implOper.md)
 * [ToNullableConverter](toNullable.md)
 * [TupleConverter](tuple.md)
 * [FromStringRepresentationConverter](fromStringRep.md) 

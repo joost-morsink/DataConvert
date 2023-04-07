@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Biz.Morsink.DataConvert
+﻿namespace Biz.Morsink.DataConvert
 {
     /// <summary>
     /// Represents the interface of conversion results.

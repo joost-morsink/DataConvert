@@ -158,6 +158,7 @@ namespace Biz.Morsink.DataConvert
                 BooleanConverter.Instance,
                 new NumericToEnumConverter(),
                 EnumParseConverter.CaseInsensitive,
+                ImplicitOperatorConverter.Instance,
                 new ToNullableConverter(),
                 TupleConverter.Instance,
                 ToObjectConverter.Instance,

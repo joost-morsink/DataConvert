@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp1.1;net45</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
     <Configurations>Debug;Release;Prerelease</Configurations>
   </PropertyGroup>
 
@@ -10,10 +10,10 @@
     <Optimize>False</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Prerelease'">
-    <Optimize>False</Optimize>
+    <Optimize>True</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration) == 'Release'">
-    <Optimize>False</Optimize>
+    <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Biz.Morsink.DataConvert\Biz.Morsink.DataConvert.csproj" />

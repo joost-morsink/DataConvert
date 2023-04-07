@@ -1,7 +1,5 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Biz.Morsink.DataConvert;
 using Biz.Morsink.DataConvert.Converters;
 
 namespace Biz.Morsink.DataConvert.Test

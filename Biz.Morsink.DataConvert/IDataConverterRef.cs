@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Biz.Morsink.DataConvert
+﻿namespace Biz.Morsink.DataConvert
 {
     /// <summary>
     /// Provides an interface to inject a reference into an IConverter
